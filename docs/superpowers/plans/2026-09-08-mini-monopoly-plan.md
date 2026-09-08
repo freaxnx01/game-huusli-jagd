@@ -145,3 +145,26 @@ Each task is self-contained; a subagent gets the task text plus the contract abo
 
 Trading, auctions, jail-free card, TURN fallback, sounds, hub card in
 `freaxnx01.github.io`, GitHub repo creation and branch protection.
+
+## Resolved during implementation (2026-09-08)
+
+- `players[i].pendingDebt` exists: the Geburtstag card deducts immediately; a payer left
+  below zero enters `debt` at the start of their next turn unless rent received in between
+  made them solvent.
+- Debt resume point is derived: `offer !== null` → `buy`, `dice === null` → `roll`, else
+  `actions`.
+- `JAIL_PAY` is only legal with cash ≥ 50; the forced third-attempt fine may open a debt.
+- Transport rent count includes mortgaged transports of the same owner; `doubleRent` applies
+  to transport squares and resets on every roll.
+- `LEAVE {player}` is a host-only action (like `TIME_UP`): sets `left`, ends that seat's turn
+  if on turn, ends the game when ≤ 1 active seat remains; a leaver's property pays rent to
+  the bank.
+- A non-double roll resets `turn.doubles` to 0 (bug found in the P2P playtest; the extra
+  roll otherwise persisted for the whole turn).
+- `newGame` records `startedAt`; the clock is `startedAt + timeLimitMs` on every client.
+- Default `maxRounds` is 25: after the doubles fix the harness showed median 20-round games
+  at ~17 min with 42 % bankruptcies; 25 rounds gives ~21 min and 59 %.
+- `node --test test/` fails on Node 25 (bare directory argument); use `node --test`.
+- Chrome blocks ES-module imports from `file://`; the game needs any static server.
+- All six tasks were implemented by subagents; the Browser pane could not fire `<dialog>`
+  `close` events, so dialogs remove themselves directly.
