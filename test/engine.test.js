@@ -418,6 +418,15 @@ describe('doubles', () => {
     assert.equal(s.turn.dice, null);
   });
 
+  test('a non-double roll after a double ends the chain and the turn', () => {
+    const rolled = reduce(atPos(setup(), 4, [[1, 1], [2, 3]]), { type: 'ROLL' });
+    const again = reduce(rolled, { type: 'END_TURN' });
+    const second = reduce(again, { type: 'ROLL' });
+    assert.equal(second.turn.doubles, 0);
+    const s = reduce(mut(second, (x) => { x.turn.phase = 'actions'; x.turn.offer = null; }), { type: 'END_TURN' });
+    assert.notEqual(s.turn.player, 0);
+  });
+
   test('the third double sends the player to jail and ends the turn', () => {
     let s = atPos(setup(), 4, [[1, 1], [2, 2], [3, 3]], (s) => own(s, 10, 0));
     s = reduce(s, { type: 'ROLL' });

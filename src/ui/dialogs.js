@@ -89,13 +89,12 @@ export function openChooser({ type, squares, state, board, onPick }) {
   dialog.addEventListener('click', (e) => {
     const pick = e.target.closest('button[data-square]');
     if (pick) {
-      dialog.close();
+      dialog.remove();
       onPick(+pick.dataset.square);
     } else if (e.target.closest('.cancel') || e.target === dialog) {
-      dialog.close();
+      dialog.remove();
     }
   });
-  dialog.addEventListener('close', () => dialog.remove());
   document.body.appendChild(dialog);
   dialog.showModal();
 }

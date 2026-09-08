@@ -203,7 +203,7 @@ const HANDLERS = {
 
 function rollAndMove(s) {
   const dice = roll(s);
-  if (isDouble(dice)) s.turn.doubles += 1;
+  s.turn.doubles = isDouble(dice) ? s.turn.doubles + 1 : 0;
   if (s.turn.doubles >= MAX_DOUBLES) {
     goToJail(s, 'doubles');
     advanceTurn(s);
