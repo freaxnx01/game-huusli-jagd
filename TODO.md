@@ -65,5 +65,6 @@ here or promote them to issues.
 
 ## Release
 
-- [ ] Create the GitHub repo `game-huusli-jagd`, enable Pages and branch protection
+- [x] Create the GitHub repo `game-huusli-jagd` and enable Pages (main, root) — done 2026-09-08
+- [ ] Branch protection on `main`
 - [ ] Hub card in `freaxnx01.github.io/games`
