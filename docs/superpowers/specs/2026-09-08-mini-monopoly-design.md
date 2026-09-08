@@ -1,6 +1,6 @@
-# Mini-Monopoly «Schwiiz-Edition» — design proposal
+# Hüüsli-Jagd (mini-Monopoly, four Swiss city editions) — design
 
-Status: **proposal, not approved** — see [Decisions needed](#decisions-needed) at the end.
+Status: **approved 2026-09-08** — all seven decisions taken with the recommended option (see the end). Name: Hüüsli-Jagd, repo `game-huusli-jagd`. Implementation plan: [2026-09-08-mini-monopoly-plan.md](../plans/2026-09-08-mini-monopoly-plan.md).
 
 Idea (from the session on 2026-09-08): a browser board game in the Monopoly family with
 four Swiss locations — **Zürich, Basel, Frick, Sursee** — playable solo against the CPU or
@@ -63,31 +63,31 @@ TODO.md for local verification.
 | # | Square | Type | Price | Rent 0 / 1 / 2 / 3 Hüüser / Hotel | House |
 |---|---|---|---|---|---|
 | 0 | **LOS** — +200 | corner | | | |
-| 1 | Frick · Widenplatz | street (Frick) | 60 | 4 / 20 / 60 / 180 / 320 | 50 |
+| 1 | Langstrass | street (tier 1) | 60 | 4 / 20 / 60 / 180 / 320 | 50 |
 | 2 | Ereignis | card | | | |
-| 3 | Frick · Hauptstrasse | street (Frick) | 60 | 4 / 20 / 60 / 180 / 320 | 50 |
-| 4 | Bahnhof Frick | station | 200 | 25 / 50 / 100 / 200 (by stations owned) | |
-| 5 | Frick · Schulstrasse | street (Frick) | 80 | 6 / 30 / 90 / 270 / 400 | 50 |
+| 3 | Badenerstrass | street (tier 1) | 60 | 4 / 20 / 60 / 180 / 320 | 50 |
+| 4 | Zürich HB | transport | 200 | 25 / 50 / 100 / 200 (by transport squares owned) | |
+| 5 | Zurlindestrass | street (tier 1) | 80 | 6 / 30 / 90 / 270 / 400 | 50 |
 | 6 | **Gfängnis / Nur zu Bsuech** | corner | | | |
-| 7 | Sursee · Unterstadt | street (Sursee) | 100 | 8 / 40 / 100 / 300 / 450 | 100 |
-| 8 | Sursee · Oberstadt | street (Sursee) | 100 | 8 / 40 / 100 / 300 / 450 | 100 |
-| 9 | Bahnhof Sursee | station | 200 | as above | |
-| 10 | Elektrizitätswärk | utility | 150 | 8 × dice roll | |
-| 11 | Sursee · Rathausplatz | street (Sursee) | 120 | 10 / 50 / 150 / 450 / 625 | 100 |
+| 7 | Universitätstrass | street (tier 2) | 100 | 8 / 40 / 100 / 300 / 450 | 100 |
+| 8 | Rämistrass | street (tier 2) | 100 | 8 / 40 / 100 / 300 / 450 | 100 |
+| 9 | Bahnhof Stadelhofe | transport | 200 | as above | |
+| 10 | EWZ Stromwärch | utility | 150 | 8 × dice roll | |
+| 11 | Seefäldstrass | street (tier 2) | 120 | 10 / 50 / 150 / 450 / 625 | 100 |
 | 12 | **Frei Parkiere** | corner | | | |
-| 13 | Basel · Spalenberg | street (Basel) | 140 | 12 / 60 / 180 / 500 / 700 | 100 |
+| 13 | Niederdorf | street (tier 3) | 140 | 12 / 60 / 180 / 500 / 700 | 100 |
 | 14 | Ereignis | card | | | |
-| 15 | Basel · Marktplatz | street (Basel) | 140 | 12 / 60 / 180 / 500 / 700 | 100 |
-| 16 | Basel SBB | station | 200 | as above | |
-| 17 | Basel · Freie Strasse | street (Basel) | 160 | 14 / 70 / 200 / 550 / 750 | 100 |
+| 15 | Limmatquai | street (tier 3) | 140 | 12 / 60 / 180 / 500 / 700 | 100 |
+| 16 | Bahnhof Oerlikon | transport | 200 | as above | |
+| 17 | Bellevue | street (tier 3) | 160 | 14 / 70 / 200 / 550 / 750 | 100 |
 | 18 | **Gang is Gfängnis** | corner | | | |
-| 19 | Zürich · Niederdorf | street (Zürich) | 220 | 18 / 90 / 250 / 700 / 875 | 150 |
-| 20 | Zürich HB | station | 200 | as above | |
-| 21 | Zürich · Limmatquai | street (Zürich) | 240 | 20 / 100 / 300 / 750 / 925 | 150 |
+| 19 | Paradeplatz | street (tier 4) | 220 | 18 / 90 / 250 / 700 / 875 | 150 |
+| 20 | Flughafe Zürich | transport | 200 | as above | |
+| 21 | Bürkliplatz | street (tier 4) | 240 | 20 / 100 / 300 / 750 / 925 | 150 |
 | 22 | Stüüre — pay 100 | tax | | | |
-| 23 | Zürich · Bahnhofstrasse | street (Zürich) | 280 | 26 / 130 / 390 / 900 / 1100 | 150 |
+| 23 | Bahnhofstrass | street (tier 4) | 280 | 26 / 130 / 390 / 900 / 1100 | 150 |
 
-City colours: Frick green, Sursee gold, Basel red, Zürich blue. All amounts in CHF.
+Tier colours: green, gold, red, blue (same in every edition). All amounts in CHF.
 
 Total purchasable value is 2650; four players start with 1500 each, so the board sells out
 in a few laps and money moves into houses quickly. Numbers are a starting point for the
@@ -112,9 +112,9 @@ simulation harness to tune, not final.
 - **Ereignis cards (11)**, drawn face-up and reshuffled when the deck runs out:
   Rega-Iisatz i de Bärge — zahl 100 · Jass-Obig gwunne — 50 für dich · Rückzahlig
   Chrankekasse — 100 für dich · Gang uf LOS · Gang is Gfängnis · SBB-Verspötig — 3 Fälder
-  zrugg · Fahr zum nöchschte Bahnhof (doppelti Miete, wenn verchauft) · Renovation — 25 pro
-  Huus, 100 pro Hotel · Geburtstag — jede zahlt dir 20 · Parkbuess — zahl 40 · Fahr a
-  d Bahnhofstrasse.
+  zrugg · Fahr zum nöchschte Verkehrsfeld (doppelti Miete, wenn verchauft) · Renovation — 25 pro
+  Huus, 100 pro Hotel · Geburtstag — jede zahlt dir 20 · Parkbuess — zahl 40 · Fahr zum
+  tüürschte Feld (square 23).
 - **Debt:** if a payment drives cash below zero, the player enters *Gäldnot* and must sell
   houses or mortgage until solvent, or declare bankruptcy. Bankrupt to a player: creditor
   gets everything (properties arrive mortgaged). Bankrupt to the bank: properties return
@@ -143,7 +143,7 @@ Buildless ES modules, matching the `game-*` stack overlay. No `package.json`, no
 index.html              markup + boot
 style.css
 version.js              VERSION mirror of the git tag
-src/engine/board.js     the 24 squares and city groups (data only)
+src/engine/editions.js  board template, rent tiers, the four edition name sets
 src/engine/cards.js     Ereignis deck
 src/engine/rng.js       mulberry32; the seed lives in game state
 src/engine/game.js      newGame(), legalActions(state), reduce(state, action) — pure
@@ -253,7 +253,7 @@ importing the engine directly:
 Trading (offer/accept over the same protocol), auctions, a jail-free card, TURN fallback,
 more Ereignis cards, a Frick/Sursee/Basel/Zürich themed piece set, statistics screen.
 
-## Decisions needed
+## Decisions (settled 2026-09-08, first option each)
 
 1. **Stack.** Earlier in the session we chose Vite + TypeScript + PeerJS. The `game-*` stack
    overlay forbids exactly that (no bundler, no `package.json`, no PeerJS). This proposal
