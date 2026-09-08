@@ -13,7 +13,7 @@ import { renderGuestLobby, renderHostLobby } from './ui/lobby.js';
 import { renderMenu } from './ui/menu.js';
 import { render } from './ui/render.js';
 
-const DEFAULT_ROUNDS = 20;
+const DEFAULT_ROUNDS = 25;
 const DEFAULT_MINUTES = 30;
 const root = document.getElementById('app');
 let screen = null;

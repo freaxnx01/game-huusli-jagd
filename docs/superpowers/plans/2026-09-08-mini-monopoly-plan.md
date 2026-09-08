@@ -26,7 +26,7 @@ square 23, "nöchschte Verkehrsfeld" = next transport square).
 
 ```js
 // src/engine/game.js
-export function newGame({ edition, players, seed, maxRounds = 20, timeLimitMs = 30 * 60 * 1000 }) // -> state; edition ∈ EDITION_IDS
+export function newGame({ edition, players, seed, maxRounds = 25, timeLimitMs = 30 * 60 * 1000 }) // -> state; edition ∈ EDITION_IDS
 export function legalActions(state)            // -> Action[] for state.turn.player
 export function reduce(state, action)          // -> new state (never mutates); throws Error on illegal action
 export function netWorth(state, playerIndex)   // cash + prices (mortgaged: half) + houses × house cost

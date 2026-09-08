@@ -132,7 +132,7 @@ describe('newGame', () => {
       assert.equal(s.edition, edition);
       assert.equal(typeof s.seed, 'number');
       assert.equal(s.round, 1);
-      assert.equal(s.maxRounds, 20);
+      assert.equal(s.maxRounds, 25);
       assert.equal(s.timeLimitMs, 30 * 60 * 1000);
       assert.equal(s.finalRound, false);
       assert.ok(s.startPlayer >= 0 && s.startPlayer < 4);

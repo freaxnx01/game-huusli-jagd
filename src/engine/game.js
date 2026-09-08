@@ -24,7 +24,7 @@ function board(state) {
 
 // ---------- public API ----------
 
-export function newGame({ edition, players, seed = Date.now() >>> 0, maxRounds = 20, timeLimitMs = 30 * 60 * 1000, startedAt = Date.now() }) {
+export function newGame({ edition, players, seed = Date.now() >>> 0, maxRounds = 25, timeLimitMs = 30 * 60 * 1000, startedAt = Date.now() }) {
   if (!EDITION_IDS.includes(edition)) throw new Error(`unknown edition: ${edition}`);
   if (!Array.isArray(players) || players.length < MIN_PLAYERS || players.length > MAX_PLAYERS) {
     throw new Error(`players: ${MIN_PLAYERS} to ${MAX_PLAYERS} seats required`);

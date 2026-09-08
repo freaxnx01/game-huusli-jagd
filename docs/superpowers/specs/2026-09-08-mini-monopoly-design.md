@@ -32,7 +32,7 @@ Four levers fix that:
 1. **Small board: 24 squares** (6 per side) instead of 40. A lap takes ~3–4 turns.
 2. **Majority rule:** you may build once you own **2 of the 3 streets** of a city. Owning all 3
    additionally doubles the unimproved rent. Sets happen without trading.
-3. **Hard end condition:** the game ends after **N rounds** (default 20) *or* when the
+3. **Hard end condition:** the game ends after **N rounds** (default 25, tuned by the harness after the doubles fix) *or* when the
    **30-minute clock** runs out — whichever first — always finishing the current round so
    everyone gets the same number of turns. Winner: highest **net worth**
    (cash + property prices + house costs; mortgaged property counts half).
