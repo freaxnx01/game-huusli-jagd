@@ -117,6 +117,9 @@ python -m http.server 8080
 npx serve .
 ```
 
+Two query parameters shorten a game for testing: `?rounds=3` sets the round limit and
+`?minutes=1` the clock, e.g. `index.html?rounds=3&minutes=1`.
+
 The CPU-vs-CPU simulation harness runs games in Node (≥ 22), checks the rule invariants
 after every action and prints length and winner statistics:
 
@@ -128,7 +131,7 @@ node scripts/sim/harness.mjs 1000     # more games
 ## Tests
 
 ```sh
-node --test test/
+node --test
 ```
 
 Node ≥ 22 runs the ES-module engine directly; no install needed.

@@ -5,7 +5,7 @@ Spec: [2026-09-08-mini-monopoly-design.md](../specs/2026-09-08-mini-monopoly-des
 
 Stack: buildless vanilla JS ES modules, no `package.json`, no bundler, GitHub Pages.
 Node ≥ 22 runs `.js` ES modules directly (module syntax detection), so tests and the
-simulation harness import the engine as-is: `node --test test/`.
+simulation harness import the engine as-is: `node --test`.
 
 Verifiable success criterion: a human can start `index.html`, play a full game against 1–3
 CPUs to the end screen, or host/join a 2–4 player P2P game, with an empty console; the
@@ -111,7 +111,7 @@ Rule details the engine must implement (from the spec):
 Each task is self-contained; a subagent gets the task text plus the contract above.
 
 1. **Engine + tests** — `src/engine/{rng,cards,game}.js` (editions.js exists),
-   `test/engine.test.js` (node:test, TDD). `verify:` `node --test test/` green; a scripted
+   `test/engine.test.js` (node:test, TDD). `verify:` `node --test` green; a scripted
    4-player game with a fixed seed reaches `over` without throwing, for every edition id.
 2. **CPU + harness** (after 1) — `src/ai/cpu.js` `chooseAction(state, playerIndex)` pure
    over `(state, state.seed)`; two levels per spec; `scripts/sim/harness.mjs` runs N games
