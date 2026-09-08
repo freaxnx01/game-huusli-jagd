@@ -160,10 +160,10 @@
   <div class="eyebrow">Design proposal · 8. September 2026</div>
   <h1>Mini-Monopoly Schwiiz</h1>
   <p class="lede">Zürich · Basel · Frick · Sursee. Browser board game, solo against the CPU or 2–4 players peer-to-peer, guaranteed to finish inside 30 minutes.</p>
-  <div class="status">Proposal, not approved. Seven decisions are waiting for you at the top.</div>
+  <div class="status">Approved 8 September 2026: all seven decisions taken with the recommended option. Name: Hüüsli-Jagd. Editions are separate boards, never mixed. Build in progress.</div>
 
-  <h2>Decisions needed</h2>
-  <p>Answer by number. Everything else below is my recommendation and can be built as-is.</p>
+  <h2>Decisions (settled)</h2>
+  <p>Kept for the record. Each was answered with the first option.</p>
   <ol class="decisions">
     <li><div><div class="q">Stack: follow the <code>game-*</code> house pattern instead of Vite + TypeScript + PeerJS?</div><div class="why">Your stack overlay for game repos forbids bundlers, <code>package.json</code> and PeerJS. Tschau Sepp ships buildless vanilla JS on GitHub Pages. This proposal follows that. Override on purpose if you prefer the earlier choice.</div></div></li>
     <li><div><div class="q">Signalling: copy-paste offer/answer codes like Tschau Sepp?</div><div class="why">With four players the host exchanges three code pairs. Proven and serverless, but the most friction in the whole game. Room codes would need PeerJS, which the house rule bans.</div></div></li>
@@ -205,18 +205,19 @@
     <div class="lever"><h3>Flat view toggle</h3><p>One switch removes the tilt for phones in portrait, screen readers and anyone who finds it hard to read. Motion respects reduced-motion settings.</p></div>
   </div>
 
-  <h2>The board</h2>
+  <h2>Four editions, one board</h2>
+  <p><strong>Zürich, Basel, Frick and Sursee are separate editions, never mixed on one board.</strong> The player picks the edition in the menu. All four share one template: the same square types, prices and rent tiers at the same positions, only the names change. So the engine, the CPU and the interface never branch on the edition. Shown here with the Zürich names; the other three substitute their own streets, stations and power company at the same squares.</p>
   <figure>
     <div class="board-wrap"><div class="board" id="board"></div></div>
     <div class="legend">
-      <span style="--c: var(--frick)">Frick</span>
-      <span style="--c: var(--sursee)">Sursee</span>
-      <span style="--c: var(--basel)">Basel</span>
-      <span style="--c: var(--zuerich)">Zürich</span>
-      <span style="--c: var(--station)">Bahnhof</span>
+      <span style="--c: var(--frick)">Tier 1</span>
+      <span style="--c: var(--sursee)">Tier 2</span>
+      <span style="--c: var(--basel)">Tier 3</span>
+      <span style="--c: var(--zuerich)">Tier 4</span>
+      <span style="--c: var(--station)">Verkehr</span>
       <span style="--c: var(--card)">Ereignis</span>
     </div>
-    <figcaption>Flat view. Play runs counter-clockwise from LOS in the bottom-right corner. Sides are ordered by price: Fricktal countryside first, Bahnhofstrasse last. Each side has three streets, one station and one special square. Amounts in CHF.</figcaption>
+    <figcaption>Flat view, Zürich edition. Play runs counter-clockwise from LOS in the bottom-right corner. Each side has three streets of one tier, one transport square and one special square; tiers rise in price from Langstrass to Bahnhofstrass. A tier is the district the majority rule applies to. Amounts in CHF.</figcaption>
   </figure>
 
   <div class="tbl">
@@ -225,7 +226,19 @@
       <tbody id="rows"></tbody>
     </table>
   </div>
-  <p>Total purchasable value is 2650 against 4 × 1500 starting cash, so the board sells out fast and money moves into houses. Stations rent 25 / 50 / 100 / 200 by count owned; the Elektrizitätswärk charges 8 × the dice roll. These numbers are a starting point for the simulation harness, not final.</p>
+  <p>Total purchasable value is 2650 against 4 × 1500 starting cash, so the board sells out fast and money moves into houses. Transport squares rent 25 / 50 / 100 / 200 by count owned; the power company charges 8 × the dice roll. These numbers are a starting point for the simulation harness, not final.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Edition</th><th>Tier 1</th><th>Tier 2</th><th>Tier 3</th><th>Tier 4</th><th>Verkehr</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Zürich</strong></td><td>Langstrass · Badenerstrass · Zurlindestrass</td><td>Universitätstrass · Rämistrass · Seefäldstrass</td><td>Niederdorf · Limmatquai · Bellevue</td><td>Paradeplatz · Bürkliplatz · Bahnhofstrass</td><td>Zürich HB · Stadelhofe · Oerlikon · Flughafe</td></tr>
+        <tr><td><strong>Basel</strong></td><td>Klybeckstrooss · Feldbergstrooss · Clarastrooss</td><td>Steinevorstadt · Barfüesserplatz · Gerbergass</td><td>Spalebärg · Marktplatz · Münsterplatz</td><td>Aeschevorstadt · St. Albe-Grabe · Freie Strooss</td><td>Basel SBB · Badische Bahnhof · EuroAirport · Rhyhafe</td></tr>
+        <tr><td><strong>Frick</strong></td><td>Niederfrick · Oberfrick · Kornbergstross</td><td>Schuelstross · Widegass · Bahnhofstross</td><td>Tongruebe Gruhalde · Sauriermuseum · Chile St. Peter und Paul</td><td>Wideplatz · Hauptstross · Gmeindshuus</td><td>Bahnhof · Postauto · A3-Aaschluss · Velowäg</td></tr>
+        <tr><td><strong>Sursee</strong></td><td>Strandbad · Campus Sursee · Surseepark</td><td>Bahnhofstrass · Centralstrass · Kapuzinerchloster</td><td>Basler Tor · Understadt · Oberstadt</td><td>Pfarrchile St. Georg · Schlössli · Rathuusplatz</td><td>Bahnhof · Schiffsteg · Postauto · A2-Aaschluss</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Frick and Sursee names are best-effort from memory and are listed in the repo's TODO for local verification. Power companies: EWZ, IWB, AEW, CKW.</p>
 
   <h2>Rules</h2>
   <ul>
@@ -314,31 +327,31 @@ scripts/sim/harness.mjs CPU-vs-CPU simulation, invariants, length statistics</pr
 <script>
   const SQ = [
     { n: 'LOS', c: 'corner', sub: '+200' },
-    { n: 'Widenplatz', city: 'Frick', c: 'frick', p: 60, r: '4 / 20 / 60 / 180 / 320', h: 50 },
+    { n: 'Langstrass', c: 't0', p: 60, r: '4 / 20 / 60 / 180 / 320', h: 50 },
     { n: 'Ereignis', c: 'card' },
-    { n: 'Hauptstrasse', city: 'Frick', c: 'frick', p: 60, r: '4 / 20 / 60 / 180 / 320', h: 50 },
-    { n: 'Bahnhof Frick', c: 'station', p: 200, r: 'by stations' },
-    { n: 'Schulstrasse', city: 'Frick', c: 'frick', p: 80, r: '6 / 30 / 90 / 270 / 400', h: 50 },
+    { n: 'Badenerstrass', c: 't0', p: 60, r: '4 / 20 / 60 / 180 / 320', h: 50 },
+    { n: 'Zürich HB', c: 'station', p: 200, r: 'by count' },
+    { n: 'Zurlindestrass', c: 't0', p: 80, r: '6 / 30 / 90 / 270 / 400', h: 50 },
     { n: 'Gfängnis', c: 'corner', sub: 'Nur zu Bsuech' },
-    { n: 'Unterstadt', city: 'Sursee', c: 'sursee', p: 100, r: '8 / 40 / 100 / 300 / 450', h: 100 },
-    { n: 'Oberstadt', city: 'Sursee', c: 'sursee', p: 100, r: '8 / 40 / 100 / 300 / 450', h: 100 },
-    { n: 'Bahnhof Sursee', c: 'station', p: 200, r: 'by stations' },
-    { n: 'Elektrizitätswärk', c: 'station', p: 150, r: '8 × roll' },
-    { n: 'Rathausplatz', city: 'Sursee', c: 'sursee', p: 120, r: '10 / 50 / 150 / 450 / 625', h: 100 },
+    { n: 'Universitätstrass', c: 't1', p: 100, r: '8 / 40 / 100 / 300 / 450', h: 100 },
+    { n: 'Rämistrass', c: 't1', p: 100, r: '8 / 40 / 100 / 300 / 450', h: 100 },
+    { n: 'Bahnhof Stadelhofe', c: 'station', p: 200, r: 'by count' },
+    { n: 'EWZ Stromwärch', c: 'station', p: 150, r: '8 × roll' },
+    { n: 'Seefäldstrass', c: 't1', p: 120, r: '10 / 50 / 150 / 450 / 625', h: 100 },
     { n: 'Frei Parkiere', c: 'corner', sub: 'nüt passiert' },
-    { n: 'Spalenberg', city: 'Basel', c: 'basel', p: 140, r: '12 / 60 / 180 / 500 / 700', h: 100 },
+    { n: 'Niederdorf', c: 't2', p: 140, r: '12 / 60 / 180 / 500 / 700', h: 100 },
     { n: 'Ereignis', c: 'card' },
-    { n: 'Marktplatz', city: 'Basel', c: 'basel', p: 140, r: '12 / 60 / 180 / 500 / 700', h: 100 },
-    { n: 'Basel SBB', c: 'station', p: 200, r: 'by stations' },
-    { n: 'Freie Strasse', city: 'Basel', c: 'basel', p: 160, r: '14 / 70 / 200 / 550 / 750', h: 100 },
+    { n: 'Limmatquai', c: 't2', p: 140, r: '12 / 60 / 180 / 500 / 700', h: 100 },
+    { n: 'Bahnhof Oerlikon', c: 'station', p: 200, r: 'by count' },
+    { n: 'Bellevue', c: 't2', p: 160, r: '14 / 70 / 200 / 550 / 750', h: 100 },
     { n: 'Gang is Gfängnis', c: 'corner', sub: 'direkt' },
-    { n: 'Niederdorf', city: 'Zürich', c: 'zuerich', p: 220, r: '18 / 90 / 250 / 700 / 875', h: 150 },
-    { n: 'Zürich HB', c: 'station', p: 200, r: 'by stations' },
-    { n: 'Limmatquai', city: 'Zürich', c: 'zuerich', p: 240, r: '20 / 100 / 300 / 750 / 925', h: 150 },
+    { n: 'Paradeplatz', c: 't3', p: 220, r: '18 / 90 / 250 / 700 / 875', h: 150 },
+    { n: 'Flughafe Zürich', c: 'station', p: 200, r: 'by count' },
+    { n: 'Bürkliplatz', c: 't3', p: 240, r: '20 / 100 / 300 / 750 / 925', h: 150 },
     { n: 'Stüüre', c: 'card', sub: 'zahl 100' },
-    { n: 'Bahnhofstrasse', city: 'Zürich', c: 'zuerich', p: 280, r: '26 / 130 / 390 / 900 / 1100', h: 150 },
+    { n: 'Bahnhofstrass', c: 't3', p: 280, r: '26 / 130 / 390 / 900 / 1100', h: 150 },
   ];
-  const COLOR = { frick: 'var(--frick)', sursee: 'var(--sursee)', basel: 'var(--basel)', zuerich: 'var(--zuerich)', station: 'var(--station)', card: 'var(--card)' };
+  const COLOR = { t0: 'var(--frick)', t1: 'var(--sursee)', t2: 'var(--basel)', t3: 'var(--zuerich)', station: 'var(--station)', card: 'var(--card)' };
   // counter-clockwise from bottom-right, 7x7 grid (1-based)
   function pos(i) {
     if (i <= 6) return [7, 7 - i];
@@ -422,7 +435,7 @@ scripts/sim/harness.mjs CPU-vs-CPU simulation, invariants, length statistics</pr
     pieces.append(base, s);
   });
   // title deeds on the table beside the case
-  const DEEDS = [[23, 'zuerich'], [16, 'station'], [11, 'sursee']];
+  const DEEDS = [[23, 't3'], [16, 'station'], [11, 't1']];
   DEEDS.forEach(([i, c], k) => {
     const s = SQ[i];
     const d = document.createElement('div');
