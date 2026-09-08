@@ -42,10 +42,23 @@ Four levers fix that:
 Rough budget: 4 players × 20 rounds = 80 turns. CPU turns take ~2 s, human turns ~15–20 s.
 With two humans and two CPUs that is ~25 minutes; the clock caps the rest.
 
-## Board (24 squares)
+## Editions and the board (24 squares)
 
-Sides are ordered by price like the original: cheap countryside first, Bahnhofstrasse last.
-Each side has 3 streets, 1 station and 1 special square.
+**Four separate editions — Zürich, Basel, Frick, Sursee — never mixed on one board**
+(user, 2026-09-08). The player picks the edition in the menu. Every edition shares one
+board template (same square types, indices, prices and rent tiers), only the names differ,
+so the engine, AI and UI never branch on the edition. Source of truth for the template and
+all four name sets: [`src/engine/editions.js`](../../../src/engine/editions.js).
+
+Template: each side has 3 streets, 1 transport square and 1 special square. Streets come in
+four groups of three (tiers, cheapest first, colours green / gold / red / blue); a tier is
+the "city district" the majority rule applies to. Transport squares replace the four
+stations (per edition: main station, second station, airport/port/Postauto, motorway
+junction); the utility is the local power company.
+
+The table below shows the template with the Zürich names; the other editions substitute
+their own names at the same indices. Frick and Sursee names are best-effort and listed in
+TODO.md for local verification.
 
 | # | Square | Type | Price | Rent 0 / 1 / 2 / 3 Hüüser / Hotel | House |
 |---|---|---|---|---|---|
