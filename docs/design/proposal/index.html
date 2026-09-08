@@ -1,0 +1,444 @@
+<title>Mini-Monopoly Schwiiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #eef2e9;
+    --paper: #f8faf5;
+    --ink: #1b2620;
+    --muted: #5b6b62;
+    --line: #c9d3c6;
+    --accent: #1e5c3a;
+    --accent-ink: #ffffff;
+    --frick: #3e8e5a;
+    --sursee: #d9a21b;
+    --basel: #c63a3a;
+    --zuerich: #2f5fa8;
+    --station: #4a5568;
+    --card: #e07b39;
+    --corner: #d8e0d2;
+    --warn-bg: #fbf1d6;
+    --warn-line: #d9a21b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141d18;
+      --paper: #1c2620;
+      --ink: #e6ece4;
+      --muted: #9fb0a5;
+      --line: #33423a;
+      --accent: #6fc28f;
+      --accent-ink: #0f1a14;
+      --corner: #26332c;
+      --warn-bg: #2d2712;
+      --warn-line: #b8891a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141d18;
+    --paper: #1c2620;
+    --ink: #e6ece4;
+    --muted: #9fb0a5;
+    --line: #33423a;
+    --accent: #6fc28f;
+    --accent-ink: #0f1a14;
+    --corner: #26332c;
+    --warn-bg: #2d2712;
+    --warn-line: #b8891a;
+  }
+  body { background: var(--bg); color: var(--ink); font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; font-size: 16px; line-height: 1.55; }
+  main { max-width: 72ch; margin: 0 auto; padding: 40px 20px 80px; }
+  h1, h2, h3 { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; text-wrap: balance; line-height: 1.05; margin: 0; }
+  h1 { font-size: 56px; font-weight: 700; letter-spacing: 0.5px; }
+  h2 { font-size: 30px; font-weight: 600; margin-top: 48px; padding-top: 16px; border-top: 2px solid var(--ink); }
+  h3 { font-size: 21px; font-weight: 600; margin-top: 26px; }
+  p { margin: 12px 0; }
+  .eyebrow { font-family: "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: 2px; font-size: 14px; font-weight: 600; color: var(--muted); }
+  .lede { font-size: 18px; color: var(--muted); margin-top: 10px; }
+  .status { display: inline-block; margin-top: 14px; padding: 6px 12px; background: var(--warn-bg); border-left: 4px solid var(--warn-line); font-size: 14px; }
+  ul, ol { padding-left: 22px; }
+  li { margin: 6px 0; }
+  li::marker { color: var(--muted); }
+  strong { font-weight: 600; }
+  code, .mono { font-family: "IBM Plex Mono", Consolas, monospace; font-size: 0.92em; }
+  pre { background: var(--paper); border: 1px solid var(--line); padding: 14px 16px; overflow-x: auto; font-size: 13.5px; line-height: 1.5; }
+  a { color: var(--accent); }
+
+  /* decisions */
+  .decisions { counter-reset: d; list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 10px; }
+  .decisions li { counter-increment: d; display: grid; grid-template-columns: 44px 1fr; gap: 12px; background: var(--paper); border: 1px solid var(--line); padding: 12px 14px; margin: 0; }
+  .decisions li::before { content: counter(d); font-family: "Barlow Condensed", sans-serif; font-size: 30px; font-weight: 700; color: var(--accent); line-height: 1; }
+  .decisions .q { font-weight: 600; }
+  .decisions .why { color: var(--muted); font-size: 15px; margin-top: 2px; }
+
+  /* levers */
+  .levers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
+  .lever { background: var(--paper); border: 1px solid var(--line); padding: 14px 16px; }
+  .lever h3 { margin: 0 0 6px; font-size: 20px; }
+  .lever p { margin: 0; font-size: 15px; color: var(--muted); }
+  @media (max-width: 560px) { .levers { grid-template-columns: 1fr; } }
+
+  /* board */
+  figure { margin: 24px 0 0; }
+  .board-wrap { overflow-x: auto; }
+  .board { display: grid; grid-template-columns: 1.35fr repeat(5, 1fr) 1.35fr; grid-template-rows: 1.35fr repeat(5, 1fr) 1.35fr; gap: 3px; background: var(--line); border: 3px solid var(--ink); min-width: 560px; aspect-ratio: 1; }
+  .sq { background: var(--paper); display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .sq .bar { height: 14px; flex: none; }
+  .sq .name { font-family: "Barlow Condensed", sans-serif; font-weight: 600; font-size: 13px; line-height: 1.1; padding: 6px 6px 0; text-transform: uppercase; letter-spacing: 0.3px; }
+  .sq .city { font-size: 10px; color: var(--muted); padding: 0 6px; text-transform: uppercase; letter-spacing: 1px; }
+  .sq .price { margin-top: auto; font-family: "IBM Plex Mono", monospace; font-size: 12px; padding: 0 6px 6px; color: var(--muted); }
+  .sq .idx { position: absolute; }
+  .sq.corner { background: var(--corner); justify-content: center; align-items: center; text-align: center; }
+  .sq.corner .name { font-size: 16px; padding: 6px; }
+  .sq.corner .sub { font-size: 12px; color: var(--muted); }
+  .centre { grid-column: 2 / 7; grid-row: 2 / 7; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; }
+  .centre .t { font-family: "Barlow Condensed", sans-serif; font-size: 34px; font-weight: 700; letter-spacing: 1px; }
+  .centre .s { color: var(--muted); font-size: 14px; max-width: 30ch; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+  figcaption { font-size: 14px; color: var(--muted); margin-top: 10px; }
+
+  /* table */
+  .tbl { overflow-x: auto; margin-top: 14px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th { text-align: left; font-family: "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: 1px; font-size: 13px; font-weight: 600; color: var(--muted); border-bottom: 2px solid var(--ink); padding: 6px 8px; }
+  td { padding: 5px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td.num { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td .dot { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; margin-top: 12px; }
+  .cardx { background: var(--paper); border: 1px solid var(--line); border-top: 4px solid var(--card); padding: 8px 10px; font-size: 14px; }
+
+  .steps { list-style: none; padding: 0; counter-reset: m; display: grid; gap: 8px; margin-top: 12px; }
+  .steps li { counter-increment: m; display: grid; grid-template-columns: 36px 1fr; gap: 10px; margin: 0; }
+  .steps li::before { content: "M" counter(m); font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 20px; color: var(--accent); }
+  .steps .v { display: block; color: var(--muted); font-size: 14px; }
+  .steps .v code { color: var(--accent); }
+
+  /* isometric scene */
+  :root { --table: #d9d3c4; --table-hi: #ece7da; --case: #d7352b; --case-dark: #9c221b; --case-side: #b8291f; --felt: #dfe9d3; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --table: #2a2622; --table-hi: #3a352e; --felt: #cfdcc2; } }
+  :root[data-theme="dark"] { --table: #2a2622; --table-hi: #3a352e; --felt: #cfdcc2; }
+  .stage { margin-top: 18px; height: 540px; overflow: hidden; position: relative; border: 1px solid var(--line); background: radial-gradient(ellipse 70% 60% at 50% 35%, var(--table-hi), var(--table)); perspective: 1500px; perspective-origin: 50% 32%; }
+  .scene { position: absolute; left: 50%; top: 50%; width: 460px; height: 460px; margin: -300px 0 0 -250px; transform: rotateX(58deg) rotateZ(-38deg); transform-style: preserve-3d; }
+  .case { position: absolute; inset: -28px; background: var(--case); border-radius: 12px; transform-style: preserve-3d; box-shadow: inset 0 0 0 2px rgba(0,0,0,.12); }
+  .case::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 24px; background: var(--case-dark); transform-origin: bottom; transform: rotateX(90deg); border-radius: 0 0 12px 12px; }
+  .case::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 24px; background: var(--case-side); transform-origin: left; transform: rotateY(90deg); border-radius: 12px 0 0 12px; }
+  .shadow { position: absolute; inset: -28px; background: rgba(0,0,0,.35); filter: blur(22px); transform: translateZ(-30px) translate(26px, 30px); border-radius: 30px; }
+  .scene .board { position: absolute; inset: 0; min-width: 0; border-color: #2c2a26; transform: translateZ(1px); }
+  .scene .board .sq { background: var(--felt); color: #1b2620; }
+  .scene .board .sq.corner { background: #cfdcc2; }
+  .scene .board .sq .name { font-size: 10.5px; padding: 4px 4px 0; }
+  .scene .board .sq .city { display: none; }
+  .scene .board .sq .price { font-size: 10px; color: #4c5a50; padding: 0 4px 4px; }
+  .scene .board .sq .bar { height: 12px; }
+  .scene .board .centre { background: var(--felt); }
+  .scene .board .centre .t { color: #1b2620; }
+  .scene .board .centre .s { display: none; }
+  .scene .board .centre .logo { background: #d7352b; color: #fff; padding: 4px 14px; font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 26px; letter-spacing: 1px; transform: rotate(-2deg); box-shadow: 0 2px 0 #9c221b; }
+  .pieces { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; }
+  .cube { position: absolute; transform-style: preserve-3d; }
+  .cube > div { position: absolute; }
+  .standee { position: absolute; width: 36px; height: 40px; transform-origin: 50% 100%; transform: translateZ(1px) rotateZ(38deg) rotateX(-58deg); font-size: 26px; line-height: 40px; text-align: center; filter: drop-shadow(0 3px 2px rgba(0,0,0,.35)); }
+  .standee-base { position: absolute; width: 22px; height: 12px; border-radius: 50%; background: rgba(0,0,0,.28); transform: translateZ(0.5px); }
+  .deed { position: absolute; width: 84px; height: 118px; background: #f6f3e8; border: 1px solid #b9b3a3; box-shadow: 2px 3px 6px rgba(0,0,0,.25); font-family: "Barlow Condensed", sans-serif; color: #1b2620; transform-style: preserve-3d; }
+  .deed .dh { height: 26px; color: #fff; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 4px; line-height: 1; }
+  .deed .dl { font-family: "IBM Plex Mono", monospace; font-size: 7.5px; line-height: 1.5; padding: 5px 7px; color: #3b4740; }
+  .deed .dl b { float: right; }
+  .deed .dt { font-size: 8px; text-align: center; color: #6a7369; letter-spacing: .5px; text-transform: uppercase; margin-top: 2px; }
+  .stage .hint { position: absolute; right: 12px; bottom: 10px; font-size: 12px; color: var(--muted); background: var(--paper); padding: 4px 8px; border: 1px solid var(--line); }
+  @media (prefers-reduced-motion: no-preference) {
+    .scene { animation: settle 1.6s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes settle { from { transform: rotateX(64deg) rotateZ(-44deg) translateZ(-40px); } }
+  }
+  .ref-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+  .ref-strip .lever h3 { font-size: 18px; }
+  @media (max-width: 560px) { .ref-strip { grid-template-columns: 1fr; } }
+</style>
+
+<main>
+  <div class="eyebrow">Design proposal · 8. September 2026</div>
+  <h1>Mini-Monopoly Schwiiz</h1>
+  <p class="lede">Zürich · Basel · Frick · Sursee. Browser board game, solo against the CPU or 2–4 players peer-to-peer, guaranteed to finish inside 30 minutes.</p>
+  <div class="status">Proposal, not approved. Seven decisions are waiting for you at the top.</div>
+
+  <h2>Decisions needed</h2>
+  <p>Answer by number. Everything else below is my recommendation and can be built as-is.</p>
+  <ol class="decisions">
+    <li><div><div class="q">Stack: follow the <code>game-*</code> house pattern instead of Vite + TypeScript + PeerJS?</div><div class="why">Your stack overlay for game repos forbids bundlers, <code>package.json</code> and PeerJS. Tschau Sepp ships buildless vanilla JS on GitHub Pages. This proposal follows that. Override on purpose if you prefer the earlier choice.</div></div></li>
+    <li><div><div class="q">Signalling: copy-paste offer/answer codes like Tschau Sepp?</div><div class="why">With four players the host exchanges three code pairs. Proven and serverless, but the most friction in the whole game. Room codes would need PeerJS, which the house rule bans.</div></div></li>
+    <li><div><div class="q">Name and repo slug.</div><div class="why">“Monopoly” is a trademark, so the public name should avoid it. Candidates: <strong>Hüüsli-Jagd</strong>, <strong>Chaufe &amp; Baue</strong>, <strong>Stadt · Land · Miete</strong>. Repo: <code>game-&lt;slug&gt;</code>.</div></div></li>
+    <li><div><div class="q">What does “Rega” in the folder name refer to?</div><div class="why">If there is a physical Rega-branded board game you want to clone, photos of its board and cards let me match the real squares and deck instead of the invented ones below.</div></div></li>
+    <li><div><div class="q">Rules: majority-build (2 of 3 streets) and no trading or auctions in v1?</div><div class="why">This is what makes sets happen without negotiation. Trading over P2P is the single most complex UI and is parked.</div></div></li>
+    <li><div><div class="q">Defaults: round limit 20 plus a hard 30-minute clock, both completing the current round?</div><div class="why">Winner by net worth when either limit hits. The simulation harness will tune the number.</div></div></li>
+    <li><div><div class="q">Language: Schwiizerdütsch only, or <code>gsw</code> + <code>en</code> from day one?</div><div class="why">Tschau Sepp is Schwiizerdütsch only. Your base rule asks for de + en for text-heavy apps.</div></div></li>
+  </ol>
+
+  <h2>Why it ends in 30 minutes</h2>
+  <p>Classic Monopoly runs long because full colour sets are rare and cash never runs dry. Four levers fix that.</p>
+  <div class="levers">
+    <div class="lever"><h3>24 squares, not 40</h3><p>Six per side. A lap takes three to four turns, so property sells out in the first few rounds.</p></div>
+    <div class="lever"><h3>Majority rule</h3><p>Build once you own 2 of a city's 3 streets. All 3 doubles the base rent on top. No trading required.</p></div>
+    <div class="lever"><h3>Hard end</h3><p>After 20 rounds or 30 minutes, whichever first, finishing the round. Highest net worth wins.</p></div>
+    <div class="lever"><h3>No dead time</h3><p>Rent, tax, salary and cards resolve themselves. A human only answers: buy? build? how do you pay?</p></div>
+  </div>
+  <p>Budget: 4 players × 20 rounds = 80 turns. CPU turns take about 2 seconds, human turns 15 to 20. Two humans and two CPUs land around 25 minutes; the clock caps the rest.</p>
+
+  <h2>Look: a travel case on the table</h2>
+  <p>Reference: Hasbro's <em>Monopoly Kompakt</em> travel edition (<a href="https://www.orellfuessli.ch/shop/home/artikeldetails/A1070672091">Orell Füssli</a>). A red plastic case, a pale green board photographed tilted in three-quarter view, chunky green houses and red hotels standing on the squares, white dice, metal tokens, title deeds fanned beside it. The game is drawn as that object, not as a diagram.</p>
+  <figure>
+    <div class="stage">
+      <div class="scene" id="scene">
+        <div class="shadow"></div>
+        <div class="case"></div>
+        <div class="board" id="isoboard"></div>
+        <div class="pieces" id="pieces"></div>
+      </div>
+      <div class="hint">CSS 3D preview · same DOM as the flat board</div>
+    </div>
+    <figcaption>Fixed camera, tilted 58° and turned 38°. Houses, hotels and dice are three-face CSS cubes; tokens are standees that always face the viewer. The board underneath is the same 7 × 7 grid as the flat view below, so squares stay clickable and testable.</figcaption>
+  </figure>
+  <div class="ref-strip">
+    <div class="lever"><h3>Pieces are things</h3><p>A bought house pops onto its square as a block. Dice tumble as cubes. Tokens slide along the perimeter square by square.</p></div>
+    <div class="lever"><h3>Cards stay flat</h3><p>Tap or hover a square and its Besitzrechtkarte lifts as a 2D card facing you. The board carries atmosphere, the card carries the numbers.</p></div>
+    <div class="lever"><h3>Swiss tokens</h3><p>Postauto, Bernhardiner, Rega-Heli, Pedalo replace car, dog, ship and cat. Simple SVG silhouettes, one colour each.</p></div>
+    <div class="lever"><h3>Flat view toggle</h3><p>One switch removes the tilt for phones in portrait, screen readers and anyone who finds it hard to read. Motion respects reduced-motion settings.</p></div>
+  </div>
+
+  <h2>The board</h2>
+  <figure>
+    <div class="board-wrap"><div class="board" id="board"></div></div>
+    <div class="legend">
+      <span style="--c: var(--frick)">Frick</span>
+      <span style="--c: var(--sursee)">Sursee</span>
+      <span style="--c: var(--basel)">Basel</span>
+      <span style="--c: var(--zuerich)">Zürich</span>
+      <span style="--c: var(--station)">Bahnhof</span>
+      <span style="--c: var(--card)">Ereignis</span>
+    </div>
+    <figcaption>Flat view. Play runs counter-clockwise from LOS in the bottom-right corner. Sides are ordered by price: Fricktal countryside first, Bahnhofstrasse last. Each side has three streets, one station and one special square. Amounts in CHF.</figcaption>
+  </figure>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>#</th><th>Square</th><th>Price</th><th>Rent 0 / 1 / 2 / 3 Hüüser / Hotel</th><th>House</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <p>Total purchasable value is 2650 against 4 × 1500 starting cash, so the board sells out fast and money moves into houses. Stations rent 25 / 50 / 100 / 200 by count owned; the Elektrizitätswärk charges 8 × the dice roll. These numbers are a starting point for the simulation harness, not final.</p>
+
+  <h2>Rules</h2>
+  <ul>
+    <li><strong>Start.</strong> 1500 CHF each, everyone on LOS, random start player. Salary 200 for passing LOS.</li>
+    <li><strong>Turn.</strong> Roll two dice, move, resolve the square, then optional actions (build, mortgage, unmortgage), end turn. Doubles roll again; a third double sends you to jail.</li>
+    <li><strong>Unowned property.</strong> Buy at list price or pass. No auction; a passed property stays with the bank.</li>
+    <li><strong>Rent.</strong> Paid automatically. Streets by house level, full city doubles the level-0 rent, stations by count owned, utility 8 × roll. Mortgaged property collects nothing.</li>
+    <li><strong>Building.</strong> Allowed on a street when you own at least 2 of that city's 3. Levels 0 to 4 (3 Hüüser + Hotel). Build as many as cash allows per turn. No even-build rule, no house supply limit.</li>
+    <li><strong>Mortgage.</strong> Raises half the price; unmortgage at 55 %. Houses are sold first at half house cost.</li>
+    <li><strong>Jail.</strong> Pay 50 at the start of the turn or try for doubles; after two failed tries you pay and move. Visiting is free.</li>
+    <li><strong>Debt.</strong> A payment that drives cash below zero opens <em>Gäldnot</em>: sell houses or mortgage until solvent, or declare bankruptcy. Bankrupt to a player: the creditor gets everything, properties arrive mortgaged. Bankrupt to the bank: properties return unowned.</li>
+    <li><strong>End.</strong> Last solvent player, or after round 20 / the 30-minute clock with the current round completed. Net worth = cash + property prices + house costs, mortgaged property counts half. Ties go to cash.</li>
+  </ul>
+
+  <h3>Ereignis cards (11, face-up, reshuffled when empty)</h3>
+  <div class="cards">
+    <div class="cardx">Rega-Iisatz i de Bärge — zahl 100</div>
+    <div class="cardx">Jass-Obig gwunne — 50 für dich</div>
+    <div class="cardx">Rückzahlig Chrankekasse — 100 für dich</div>
+    <div class="cardx">Gang uf LOS</div>
+    <div class="cardx">Gang is Gfängnis</div>
+    <div class="cardx">SBB-Verspötig — 3 Fälder zrugg</div>
+    <div class="cardx">Fahr zum nöchschte Bahnhof — doppelti Miete, wenn verchauft</div>
+    <div class="cardx">Renovation — 25 pro Huus, 100 pro Hotel</div>
+    <div class="cardx">Geburtstag — jede zahlt dir 20</div>
+    <div class="cardx">Parkbuess — zahl 40</div>
+    <div class="cardx">Fahr a d Bahnhofstrasse</div>
+  </div>
+
+  <h2>CPU opponents</h2>
+  <ul>
+    <li><strong>Gmüetlich.</strong> Buys when it can afford price + 100, seven times out of ten. Builds at random. Always pays out of jail.</li>
+    <li><strong>Gwieft.</strong> Keeps a reserve of 150 plus the highest rent it could hit next lap. Buys anything that gives it 2 of 3 in a city or denies an opponent's 2 of 3. Values stations by count owned. Builds the city with the best rent per CHF up to level 3 while the reserve holds. Sits in jail late in the game when the board is dangerous.</li>
+  </ul>
+  <p>Both are pure functions of state and seed, so the simulation harness can replay every decision.</p>
+
+  <h2>Architecture</h2>
+  <p>Buildless ES modules, matching the <code>game-*</code> stack overlay. No <code>package.json</code>, no bundler.</p>
+<pre>index.html              markup + boot
+style.css
+version.js              VERSION mirror of the git tag
+src/engine/board.js     the 24 squares and city groups (data only)
+src/engine/cards.js     Ereignis deck
+src/engine/rng.js       mulberry32; the seed lives in game state
+src/engine/game.js      newGame(), legalActions(state), reduce(state, action)
+src/ai/cpu.js           chooseAction(state, seat, level)
+src/net/webrtc.js       offer/answer codes, STUN, data channel (from Tschau Sepp)
+src/ui/*.js             board, dice, player panel, dialogs, log
+src/i18n.js             strings { gsw, en }, CHF via Intl.NumberFormat('de-CH')
+scripts/sim/harness.mjs CPU-vs-CPU simulation, invariants, length statistics</pre>
+  <p><strong>One pure reducer.</strong> Dice come from the random generator inside the state, so a game is fully determined by its seed and action list. That gives replay for free, an engine testable in Node without extracting scripts from HTML, and a trivially host-authoritative network model.</p>
+
+  <h3>Multiplayer: host-authoritative star, as in Tschau Sepp</h3>
+  <ul>
+    <li>Host makes one offer code per guest, guest returns an answer code. Copy-paste signalling, STUN only, no server. The deflate + base64 code format and lobby handling from Tschau Sepp can be lifted nearly verbatim.</li>
+    <li>Seats have a kind: <code>local</code>, <code>cpu</code>, <code>remote</code>. The host runs the reducer and CPU moves; guests only render.</li>
+    <li>Guest sends <code>{t:'act', action}</code>. Host validates it against the legal actions, applies it, broadcasts the full state with the recipient's seat.</li>
+    <li>A dropped guest becomes <code>left</code>: its turn is skipped and its property is frozen. Fewer than two seats ends the game.</li>
+    <li>Because seat kinds are free, <strong>hotseat</strong> play on one screen costs nothing and closes Tschau Sepp's open TODO for local multiplayer.</li>
+  </ul>
+
+  <h3>Interface</h3>
+  <ul>
+    <li>7 × 7 CSS grid: 24 perimeter cells, centre holds the dice, the last event and the action buttons. Wrapped in a <code>perspective</code> container with <code>rotateX(58deg) rotateZ(-38deg)</code> for the isometric scene; the case sides are pseudo-elements folded down with <code>rotateX(90deg)</code> and <code>rotateY(90deg)</code>. Player panel with cash and coloured property chips beside it, below it on phones.</li>
+    <li>Houses, hotels and dice are three-face CSS cubes placed with <code>translateZ</code>; tokens are SVG standees counter-rotated to face the camera. No canvas, no engine, the DOM stays the source of truth.</li>
+    <li>Round counter and 30-minute clock always visible; the final round is announced.</li>
+    <li>Schwiizerdütsch copy, <code>en</code> strings through the house i18n pattern, amounts through <code>Intl.NumberFormat</code>.</li>
+    <li>Web Audio sounds for dice, cash and jail, muteable. Polish, not core.</li>
+  </ul>
+
+  <h3>Testing</h3>
+  <p>The stack is buildless, so the gate is the manual playtest checklist plus a Node harness that imports the engine directly. Invariants after every action: cash and bank ledger balance, no house without the majority, no negative cash outside Gäldnot, every game ends within the round limit. Over 1000 CPU-vs-CPU games it reports rounds to finish, bankruptcies and winner spread by seat order. Those numbers tune prices, salary and the round limit until the 30-minute target holds.</p>
+
+  <h2>Milestones</h2>
+  <ol class="steps">
+    <li><div>Engine and harness: rules complete, invariants green, length tuned.<span class="v"><code>verify:</code> median game under 20 rounds, at least one bankruptcy in most games.</span></div></li>
+    <li><div>Solo UI via <code>/ui:brainstorm</code>, <code>/ui:flow</code>, <code>/ui:build</code>: one human against 1 to 3 CPUs.<span class="v"><code>verify:</code> a full game in the browser with an empty console.</span></div></li>
+    <li><div>P2P: WebRTC layer lifted from Tschau Sepp, lobby with names, 2 to 4 players.<span class="v"><code>verify:</code> two browsers finish a game; a dropped guest does not hang the host.</span></div></li>
+    <li><div>Release: version badge, changelog, README, hub card, tag v1.0.0.</div></li>
+  </ol>
+
+  <h2>Parked for later</h2>
+  <p>Trading over the same protocol, auctions, a jail-free card, a TURN fallback for strict NATs, more Ereignis cards, themed playing pieces, a statistics screen.</p>
+</main>
+
+<script>
+  const SQ = [
+    { n: 'LOS', c: 'corner', sub: '+200' },
+    { n: 'Widenplatz', city: 'Frick', c: 'frick', p: 60, r: '4 / 20 / 60 / 180 / 320', h: 50 },
+    { n: 'Ereignis', c: 'card' },
+    { n: 'Hauptstrasse', city: 'Frick', c: 'frick', p: 60, r: '4 / 20 / 60 / 180 / 320', h: 50 },
+    { n: 'Bahnhof Frick', c: 'station', p: 200, r: 'by stations' },
+    { n: 'Schulstrasse', city: 'Frick', c: 'frick', p: 80, r: '6 / 30 / 90 / 270 / 400', h: 50 },
+    { n: 'Gfängnis', c: 'corner', sub: 'Nur zu Bsuech' },
+    { n: 'Unterstadt', city: 'Sursee', c: 'sursee', p: 100, r: '8 / 40 / 100 / 300 / 450', h: 100 },
+    { n: 'Oberstadt', city: 'Sursee', c: 'sursee', p: 100, r: '8 / 40 / 100 / 300 / 450', h: 100 },
+    { n: 'Bahnhof Sursee', c: 'station', p: 200, r: 'by stations' },
+    { n: 'Elektrizitätswärk', c: 'station', p: 150, r: '8 × roll' },
+    { n: 'Rathausplatz', city: 'Sursee', c: 'sursee', p: 120, r: '10 / 50 / 150 / 450 / 625', h: 100 },
+    { n: 'Frei Parkiere', c: 'corner', sub: 'nüt passiert' },
+    { n: 'Spalenberg', city: 'Basel', c: 'basel', p: 140, r: '12 / 60 / 180 / 500 / 700', h: 100 },
+    { n: 'Ereignis', c: 'card' },
+    { n: 'Marktplatz', city: 'Basel', c: 'basel', p: 140, r: '12 / 60 / 180 / 500 / 700', h: 100 },
+    { n: 'Basel SBB', c: 'station', p: 200, r: 'by stations' },
+    { n: 'Freie Strasse', city: 'Basel', c: 'basel', p: 160, r: '14 / 70 / 200 / 550 / 750', h: 100 },
+    { n: 'Gang is Gfängnis', c: 'corner', sub: 'direkt' },
+    { n: 'Niederdorf', city: 'Zürich', c: 'zuerich', p: 220, r: '18 / 90 / 250 / 700 / 875', h: 150 },
+    { n: 'Zürich HB', c: 'station', p: 200, r: 'by stations' },
+    { n: 'Limmatquai', city: 'Zürich', c: 'zuerich', p: 240, r: '20 / 100 / 300 / 750 / 925', h: 150 },
+    { n: 'Stüüre', c: 'card', sub: 'zahl 100' },
+    { n: 'Bahnhofstrasse', city: 'Zürich', c: 'zuerich', p: 280, r: '26 / 130 / 390 / 900 / 1100', h: 150 },
+  ];
+  const COLOR = { frick: 'var(--frick)', sursee: 'var(--sursee)', basel: 'var(--basel)', zuerich: 'var(--zuerich)', station: 'var(--station)', card: 'var(--card)' };
+  // counter-clockwise from bottom-right, 7x7 grid (1-based)
+  function pos(i) {
+    if (i <= 6) return [7, 7 - i];
+    if (i <= 12) return [13 - i, 1];
+    if (i <= 18) return [1, i - 11];
+    return [i - 17, 7];
+  }
+  function buildBoard(board, centreHtml) {
+    const cells = [];
+    SQ.forEach((s, i) => {
+      const [r, c] = pos(i);
+      const el = document.createElement('div');
+      el.className = 'sq' + (s.c === 'corner' ? ' corner' : '');
+      el.style.gridRow = r; el.style.gridColumn = c;
+      if (s.c === 'corner') {
+        el.innerHTML = `<div class="name">${s.n}</div><div class="sub">${s.sub}</div>`;
+      } else {
+        const price = s.p ? `<div class="price">${s.p}</div>` : (s.sub ? `<div class="price">${s.sub}</div>` : '');
+        el.innerHTML = `<div class="bar" style="background:${COLOR[s.c]}"></div><div class="name">${s.n}</div>${s.city ? `<div class="city">${s.city}</div>` : ''}${price}`;
+      }
+      board.appendChild(el);
+      cells.push(el);
+    });
+    const centre = document.createElement('div');
+    centre.className = 'centre';
+    centre.innerHTML = centreHtml;
+    board.appendChild(centre);
+    return cells;
+  }
+  buildBoard(document.getElementById('board'), '<div class="t">MINI-MONOPOLY SCHWIIZ</div><div class="s">Dice, last event and action buttons live here in the real game.</div>');
+
+  // ---- isometric scene ----
+  const isoCells = buildBoard(document.getElementById('isoboard'), '<div class="logo">MINI-MONOPOLY</div><div class="t" style="font-size:16px;letter-spacing:3px">SCHWIIZ</div>');
+  const pieces = document.getElementById('pieces');
+
+  function cube(x, y, w, d, h, top, front, side) {
+    const c = document.createElement('div');
+    c.className = 'cube';
+    c.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${d}px;`;
+    c.innerHTML =
+      `<div style="left:0;top:0;width:${w}px;height:${d}px;background:${top};transform:translateZ(${h}px)"></div>` +
+      `<div style="left:0;top:${d - h}px;width:${w}px;height:${h}px;background:${front};transform-origin:bottom;transform:rotateX(-90deg)"></div>` +
+      `<div style="left:0;top:0;width:${h}px;height:${d}px;background:${side};transform-origin:left;transform:rotateY(-90deg)"></div>`;
+    pieces.appendChild(c);
+    return c;
+  }
+  const at = (i, dx = 0, dy = 0) => {
+    const el = isoCells[i];
+    return [el.offsetLeft + dx, el.offsetTop + dy, el.offsetWidth, el.offsetHeight];
+  };
+  function house(i, k) {
+    const [x, y, w] = at(i);
+    cube(x + 6 + k * 13, y + 18, 11, 10, 10, '#4cc25a', '#2f9e44', '#237a34');
+  }
+  function hotel(i) {
+    const [x, y] = at(i);
+    cube(x + 8, y + 16, 24, 13, 13, '#ef5c4e', '#d7352b', '#9c221b');
+  }
+  house(19, 0); house(19, 1); house(21, 0); house(21, 1); house(21, 2); hotel(23);
+  house(1, 0); house(3, 0); house(3, 1);
+  house(15, 0); house(15, 1); house(17, 0);
+  function die(x, y, pips) {
+    const dots = pips.map(([px, py]) => `radial-gradient(circle at ${px}% ${py}%, #1b2620 2.6px, transparent 3.2px)`).join(',');
+    const c = cube(x, y, 24, 24, 24, '#fbfbf7', '#e6e5df', '#cfcfc6');
+    c.firstChild.style.backgroundImage = dots;
+    c.firstChild.style.borderRadius = '4px';
+    c.style.transform = 'rotateZ(-14deg)';
+  }
+  die(212, 250, [[50, 50]]);
+  die(250, 236, [[25, 25], [75, 25], [25, 75], [75, 75], [50, 50]]);
+  const TOKENS = [[0, '🚌', 40, 10], [8, '🐕', 10, 8], [16, '🚁', 20, 6], [23, '🚣', 4, 8]];
+  TOKENS.forEach(([i, ch, dx, dy]) => {
+    const [x, y] = at(i, dx, dy);
+    const base = document.createElement('div');
+    base.className = 'standee-base';
+    base.style.cssText = `left:${x + 7}px;top:${y + 30}px;`;
+    const s = document.createElement('div');
+    s.className = 'standee';
+    s.style.cssText = `left:${x}px;top:${y}px;`;
+    s.textContent = ch;
+    pieces.append(base, s);
+  });
+  // title deeds on the table beside the case
+  const DEEDS = [[23, 'zuerich'], [16, 'station'], [11, 'sursee']];
+  DEEDS.forEach(([i, c], k) => {
+    const s = SQ[i];
+    const d = document.createElement('div');
+    d.className = 'deed';
+    d.style.cssText = `left:${150 + k * 78}px;top:${528 + k * 8}px;transform:rotateZ(${-9 + k * 7}deg) translateZ(${k + 1}px);`;
+    const lines = s.h ? s.r.split(' / ').map((v, j) => `<div>${['Miete', '1 Huus', '2 Hüüser', '3 Hüüser', 'Hotel'][j]}<b>${v}</b></div>`).join('') + `<div>Huus<b>${s.h}</b></div>` : `<div>Miete<b>${s.r}</b></div>`;
+    d.innerHTML = `<div class="dh" style="background:${COLOR[c]}">${s.city ? s.city + ' · ' : ''}${s.n}</div><div class="dl">${lines}</div><div class="dt">Besitzrecht · ${s.p}</div>`;
+    pieces.appendChild(d);
+  });
+
+  const rows = document.getElementById('rows');
+  SQ.forEach((s, i) => {
+    const tr = document.createElement('tr');
+    const dot = s.c !== 'corner' ? `<span class="dot" style="background:${COLOR[s.c]}"></span>` : '';
+    const label = s.city ? `${s.city} · ${s.n}` : s.n + (s.sub ? ` — ${s.sub}` : '');
+    tr.innerHTML = `<td class="num">${i}</td><td>${dot}${label}</td><td class="num">${s.p ?? ''}</td><td>${s.r ?? ''}</td><td class="num">${s.h ?? ''}</td>`;
+    rows.appendChild(tr);
+  });
+</script>

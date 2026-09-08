@@ -161,11 +161,54 @@ without extracting scripts from HTML, and a trivially host-authoritative network
 - Because seat kinds are free, **hotseat** (several locals on one screen) costs nothing and
   covers Tschau Sepp's open TODO for local multiplayer.
 
+### Visual design — pseudo-3D isometric, "travel case on a table"
+
+Reference (user, 2026-09-08): Hasbro *Monopoly Kompakt* travel edition
+([Orell Füssli A1070672091](https://www.orellfuessli.ch/shop/home/artikeldetails/A1070672091)):
+a red plastic case with a pale green board, photographed tilted in three-quarter view,
+chunky green houses and red hotels standing on the squares, metal tokens, white dice,
+title deed cards fanned beside the case.
+
+What we take from it
+
+- **The scene:** a table surface, the board sitting in a red case with visible thickness,
+  everything viewed from a fixed camera tilted about 58° and turned about 38°. Not a flat
+  diagram — the board is an object.
+- **Pieces are things:** houses and hotels are small extruded blocks that appear on the
+  squares as they are bought; the dice are cubes that tumble; tokens stand up on the board.
+- **Cards are flat and readable:** tapping or hovering a square lifts a *Besitzrechtkarte*
+  (title deed) as a 2D card facing the viewer — the isometric board carries atmosphere,
+  the cards carry the numbers.
+- **Colour:** pale-green board, red case, black corner ink, the four city colours as
+  square bars; pieces in saturated plastic colours.
+
+How it is built (stays inside the stack overlay: DOM/SVG, no engine)
+
+- The 7 × 7 grid from the flat design is kept as the DOM and wrapped in a
+  `perspective` container with `transform: rotateX(58deg) rotateZ(-38deg)` and
+  `transform-style: preserve-3d`. Squares stay real elements: clickable, focusable,
+  styleable, testable.
+- **Case:** a red frame around the board; its front and right sides are pseudo-elements
+  folded down with `rotateX(-90deg)` / `rotateY(90deg)` to give it depth.
+- **Houses, hotels, dice:** three-face CSS cubes (top + two sides) placed with
+  `translateZ`. Cheap, crisp, and they follow the board's tilt for free.
+- **Tokens:** cardboard-standee style — an SVG silhouette counter-rotated to face the
+  camera (`rotateZ(38deg) rotateX(-58deg)`), so it reads at any board size. Token set
+  proposed: Postauto, Bernhardiner, Rega-Heli, Pedalo (replaces car / dog / ship / cat).
+- **Motion:** a token slides square to square along the perimeter; dice roll via a short
+  cube rotation; a bought house pops in with a scale-in. `prefers-reduced-motion` turns
+  all of it into instant changes.
+- **Accessibility and phones:** a **flat view toggle** (top-down, no transform) for small
+  screens, screen readers and anyone who finds the tilt hard to read. The DOM is the same;
+  only the transform changes. Portrait phones default to flat.
+- **Text on the tilted board** is short (street name, price); everything else lives on the
+  deed card or in the side panel, which stay 2D.
+
 ### UI
 
 - Board as a 7 × 7 CSS grid: 24 perimeter cells, centre holds dice, the last action, and
-  the action buttons. Player panel with cash and coloured property chips beside it; on
-  narrow screens it drops below the board.
+  the action buttons. Rendered isometric as above, flat view available. Player panel with
+  cash and coloured property chips beside it; on narrow screens it drops below the board.
 - Round counter and the 30-minute clock always visible; the final round is announced.
 - Swiss German copy; `en` strings via the house i18n pattern. Amounts through
   `Intl.NumberFormat`.
@@ -186,7 +229,8 @@ importing the engine directly:
 1. **Engine + harness** — rules complete, invariants green, length tuned. `verify:` harness
    reports median game < 20 rounds with ≥ 1 bankruptcy in most games.
 2. **Solo UI** — `/ui:brainstorm` → `/ui:flow` → `/ui:build` for board, panel and dialogs;
-   1 human vs 1–3 CPUs. `verify:` a full game in the browser, empty console.
+   1 human vs 1–3 CPUs. Flat view first, then the isometric scene on top of the same DOM.
+   `verify:` a full game in the browser, empty console, both views.
 3. **P2P** — lift the WebRTC layer from Tschau Sepp, lobby with names, 2–4 players.
    `verify:` two browsers finish a game; a dropped guest does not hang the host.
 4. **Release** — version badge, changelog, README, hub card, `v1.0.0` tag.
