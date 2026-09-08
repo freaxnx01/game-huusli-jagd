@@ -24,7 +24,7 @@ function board(state) {
 
 // ---------- public API ----------
 
-export function newGame({ edition, players, seed = Date.now() >>> 0, maxRounds = 20, timeLimitMs = 30 * 60 * 1000 }) {
+export function newGame({ edition, players, seed = Date.now() >>> 0, maxRounds = 20, timeLimitMs = 30 * 60 * 1000, startedAt = Date.now() }) {
   if (!EDITION_IDS.includes(edition)) throw new Error(`unknown edition: ${edition}`);
   if (!Array.isArray(players) || players.length < MIN_PLAYERS || players.length > MAX_PLAYERS) {
     throw new Error(`players: ${MIN_PLAYERS} to ${MAX_PLAYERS} seats required`);
@@ -32,7 +32,7 @@ export function newGame({ edition, players, seed = Date.now() >>> 0, maxRounds =
   const start = randomInt(seed, players.length);
   const deck = shuffle(CARD_IDS, start.seed);
   const state = {
-    edition, seed: deck.seed, round: 1, maxRounds, timeLimitMs, startPlayer: start.value, finalRound: false,
+    edition, seed: deck.seed, round: 1, maxRounds, timeLimitMs, startedAt, startPlayer: start.value, finalRound: false,
     players: players.map(newPlayer), turn: newTurn(start.value), props: {}, deck: deck.array, log: [], winner: null,
   };
   log(state, { t: 'turn', p: start.value });
