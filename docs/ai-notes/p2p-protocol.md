@@ -93,7 +93,11 @@ delta encoding.
 ### Disconnect handling
 
 - Host loses a guest (`disconnected {guestId}`): during the lobby, free the seat and
-  re-send `lobby`; during the game, treat as `leave`. If fewer than two seats remain
-  active, the host ends the game (`bye` + `closeAll()`).
+  re-send `lobby`; during the game, treat as `leave`: the host dispatches the host-only
+  engine action `{type:'LEAVE', player: seat}` (sets `left`, ends that seat's turn if it
+  was on turn, finishes the game when fewer than two seats remain active) and broadcasts
+  the resulting `state` like any other. A finished game shows the end screen on every
+  side; `bye` + `closeAll()` follow when the host leaves it (or the lobby, or a running
+  game).
 - Guest loses the host (`disconnected {reason}`): show a message and return to the
   menu. There is no reconnect; a new join requires a fresh offer/answer exchange.

@@ -1,5 +1,6 @@
 // Start menu: edition picker, solo / hotseat / online modes. Calls
-// onStart({ edition, mode, players }) with players as the engine expects them.
+// onStart({ edition, mode, players }) with players as the engine expects them,
+// onHost({ edition, name, custom }) / onJoin({ name, custom }) for the online lobbies.
 
 import { EDITION_IDS, EDITIONS } from '../engine/editions.js';
 import { t } from '../i18n.js';
@@ -10,8 +11,9 @@ import { langSwitcher } from './lang.js';
 const STORAGE_KEY = 'hj.menu';
 const MODES = ['solo', 'hotseat', 'online'];
 const LEVELS = ['gmuetlich', 'gwieft'];
-const CPU_NAMES = ['Sepp', 'Heidi', 'Ueli', 'Vreni'];
+export const CPU_NAMES = ['Sepp', 'Heidi', 'Ueli', 'Vreni'];
 const MAX_SEATS = 4;
+const ONLINE_NAME_MAX = 18;
 
 function loadPrefs() {
   try {
@@ -53,7 +55,20 @@ function nameInputs(prefs) {
   }).join('');
 }
 
-function html(prefs) {
+function onlineButton(which) {
+  return `<button type="button" class="btn big" data-online="${which}">${esc(t(`menu.${which}`))}<small>${esc(t(`menu.${which}Hint`))}</small></button>`;
+}
+
+function onlineHtml(prefs, notice) {
+  return `<div class="mode online" data-mode="online"${prefs.mode === 'online' ? '' : ' hidden'}>
+    ${notice ? `<p class="notice" role="status">${esc(notice)}</p>` : ''}
+    <p class="intro">${esc(t('menu.onlineIntro'))}</p>
+    <label class="field"><span>${esc(t('menu.yourName'))}</span><input name="onlineName" maxlength="${ONLINE_NAME_MAX}" value="${esc(prefs.name)}" placeholder="${esc(t('menu.playerN', { n: 1 }))}"></label>
+    <div class="online-buttons">${onlineButton('host')}${onlineButton('join')}</div>
+  </div>`;
+}
+
+function html(prefs, notice) {
   return `<header class="menu-head">
     <div class="lang-slot"></div>
     <h1>${esc(t('app.title'))}</h1>
@@ -74,13 +89,7 @@ function html(prefs) {
     <div class="names">${nameInputs(prefs)}</div>
     <button class="btn primary big" type="submit">${esc(t('menu.start'))}</button>
   </form>
-  <div class="mode online" data-mode="online"${prefs.mode === 'online' ? '' : ' hidden'}>
-    <div class="online-buttons">
-      <button type="button" class="btn big" data-online="host">${esc(t('menu.host'))}</button>
-      <button type="button" class="btn big" data-online="join">${esc(t('menu.join'))}</button>
-    </div>
-    <div class="placeholder" hidden><p class="which"></p><p>${esc(t('menu.onlineSoon'))}</p></div>
-  </div>
+  ${onlineHtml(prefs, notice)}
   <footer class="foot"><span class="version">v${esc(VERSION)}</span></footer>`;
 }
 
@@ -90,10 +99,12 @@ function cpuSeats(count, level, humanName) {
     .map((name) => ({ name, kind: 'cpu', level }));
 }
 
-export function renderMenu(root, { onStart }) {
+// notice: optional one-line message (e.g. "the host ended the game") shown on the online tab.
+export function renderMenu(root, { onStart, onHost, onJoin, notice = '' }) {
   const prefs = { edition: 'zuerich', mode: 'solo', name: '', cpus: 3, level: 'gwieft', seats: 2, names: [], ...loadPrefs() };
+  if (notice) prefs.mode = 'online';
   root.innerHTML = '';
-  const menu = el('section', 'menu', html(prefs));
+  const menu = el('section', 'menu', html(prefs, notice));
   menu.dataset.screen = 'menu';
   root.appendChild(menu);
   menu.querySelector('.lang-slot').appendChild(langSwitcher());
@@ -139,8 +150,11 @@ export function renderMenu(root, { onStart }) {
   online.addEventListener('click', (e) => {
     const button = e.target.closest('button[data-online]');
     if (!button) return;
-    const box = online.querySelector('.placeholder');
-    box.querySelector('.which').textContent = t(button.dataset.online === 'host' ? 'menu.onlineHost' : 'menu.onlineJoin');
-    box.hidden = false;
+    const typed = online.querySelector('input[name=onlineName]').value.trim();
+    Object.assign(prefs, { edition: edition(), name: typed });
+    savePrefs(prefs);
+    const custom = typed !== '';
+    if (button.dataset.online === 'host') onHost({ edition: prefs.edition, name: typed || t('menu.playerN', { n: 1 }), custom });
+    else onJoin({ name: typed || t('lobby.guest'), custom });
   });
 }

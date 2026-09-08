@@ -30,6 +30,7 @@ export function logText(entry, state, board) {
       return t(`log.${entry.t}`, { ...p, amount: chf(entry.amount) });
     case 'salary':
     case 'turn':
+    case 'left':
       return t(`log.${entry.t}`, p);
     case 'card':
       return t('log.card', { ...p, card: lookup(`card.${entry.card}`, entry.card) });

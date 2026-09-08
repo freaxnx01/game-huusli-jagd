@@ -8,6 +8,7 @@
 //   legal     Action[] from legalActions(state) for state.turn.player
 //   dispatch  (action) => void; also receives the UI-level { type: 'NEW_GAME' }
 //   netWorth  (state, playerIndex) => number
+//   onLeave   optional () => void; when given, a "leave" button appears in the top bar
 
 import { EDITIONS } from '../engine/editions.js';
 import { lang, t } from '../i18n.js';
@@ -45,7 +46,7 @@ function skeleton(state) {
   return `<header class="topbar">
     <div class="brand"><span class="logo">${esc(t('app.title'))}</span><span class="edition">${esc(EDITIONS[state.edition].name)}</span></div>
     <div class="status"><span class="round"></span><span class="clock"></span></div>
-    <div class="tools"><button class="btn small view-toggle" type="button"></button></div>
+    <div class="tools"><button class="btn small view-toggle" type="button"></button><button class="btn small leave" type="button" hidden>${esc(t('game.leave'))}</button></div>
   </header>
   <main class="game-main">
     <section class="stage-wrap"><div class="stage"></div><div class="deed-host"></div></section>
@@ -101,6 +102,8 @@ function mount(root, state, key, startedAt) {
   toggle.addEventListener('click', scene.toggle);
   scene.onChange(labelToggle);
   labelToggle();
+  const leave = game.querySelector('.leave');
+  leave.addEventListener('click', () => inst.opts.onLeave?.());
   game.querySelector('.tools').appendChild(langSwitcher());
   game.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
@@ -119,6 +122,7 @@ function mount(root, state, key, startedAt) {
 
   function update() {
     const { state: current, opts } = inst;
+    leave.hidden = !opts.onLeave;
     board.update(current);
     renderRound(roundEl, current);
     renderClock(clockEl, current, inst.startedAt);

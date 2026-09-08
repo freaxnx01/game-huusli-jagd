@@ -100,6 +100,34 @@ export function openChooser({ type, squares, state, board, onPick }) {
   dialog.showModal();
 }
 
+// Yes/no question as a modal; resolves true only when "yes" is clicked.
+export function confirmDialog(message) {
+  return new Promise((resolve) => {
+    const dialog = el('dialog', 'chooser confirm');
+    dialog.innerHTML = `<p>${esc(message)}</p>
+      <div class="confirm-buttons">
+        <button class="btn danger" data-answer="yes">${esc(t('confirm.yes'))}</button>
+        <button class="btn" data-answer="no">${esc(t('confirm.no'))}</button>
+      </div>`;
+    // Removing an open modal closes it; no reliance on the (async) close event.
+    function finish(answer) {
+      dialog.remove();
+      resolve(answer);
+    }
+    dialog.addEventListener('click', (e) => {
+      const button = e.target.closest('button[data-answer]');
+      if (button) finish(button.dataset.answer === 'yes');
+      else if (e.target === dialog) finish(false);
+    });
+    dialog.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      finish(false);
+    });
+    document.body.appendChild(dialog);
+    dialog.showModal();
+  });
+}
+
 function rankingHtml(state, netWorth) {
   const order = state.players.map((_, i) => i).sort((a, b) => netWorth(state, b) - netWorth(state, a) || state.players[b].cash - state.players[a].cash || a - b);
   return order

@@ -829,6 +829,75 @@ describe('turn order and rounds', () => {
   });
 });
 
+// ---------- leaving (host-only, emitted by the network layer) ----------
+
+describe('leave', () => {
+  const leave = (state, player) => reduce(state, { type: 'LEAVE', player });
+
+  test('marks the seat as left and logs it; another seat on turn keeps playing', () => {
+    const s = leave(inActions(setup()), 2);
+    assert.equal(s.players[2].left, true);
+    assert.deepEqual(last(s, 'left'), { t: 'left', p: 2 });
+    assert.equal(s.turn.player, 0);
+    assert.equal(s.turn.phase, 'actions');
+  });
+
+  test('leaving on your own turn ends it and skips you from then on', () => {
+    let s = leave(inActions(setup()), 0);
+    assert.equal(s.turn.player, 1);
+    assert.equal(s.turn.phase, 'roll');
+    for (let i = 0; i < 3; i++) s = reduce(inActions(s), { type: 'END_TURN' });
+    assert.equal(s.turn.player, 1);
+    assert.equal(s.round, 2);
+  });
+
+  test('leaving mid-offer or mid-debt drops the offer and the debt', () => {
+    const offered = mut(setup(), (s) => { s.turn.phase = 'buy'; s.turn.offer = 1; s.turn.dice = [1, 2]; });
+    const s1 = leave(offered, 0);
+    assert.equal(s1.turn.offer, null);
+    assert.equal(s1.turn.player, 1);
+    const indebted = mut(setup(), (s) => { s.turn.phase = 'debt'; s.turn.debt = { amount: 50, to: 1 }; s.players[0].cash = -50; s.turn.dice = [1, 2]; });
+    const s2 = leave(indebted, 0);
+    assert.equal(s2.turn.debt, null);
+    assert.equal(s2.turn.player, 1);
+  });
+
+  test('the estate stays but collects no rent, and a leaver clears a pending debt', () => {
+    let s = mut(setup(), (s) => { own(s, 7, 1); s.players[1].pendingDebt = { amount: 20, to: 0 }; });
+    s = leave(s, 1);
+    assert.equal(s.props[7].owner, 1);
+    assert.equal(s.players[1].pendingDebt, null);
+    s = reduce(atPos(s, 2, [[2, 3]]), { type: 'ROLL' });
+    assert.equal(s.players[0].pos, 7);
+    assert.equal(s.players[0].cash, 1500 - 8);
+    assert.equal(s.players[1].cash, 1500);
+  });
+
+  test('going bankrupt to a creditor who left hands the estate to the bank', () => {
+    let s = mut(setup(), (s) => { own(s, 1, 0); s.turn.phase = 'debt'; s.turn.debt = { amount: 50, to: 1 }; s.players[0].cash = -50; s.turn.dice = [1, 2]; });
+    s = leave(s, 1);
+    s = reduce(s, { type: 'DECLARE_BANKRUPT' });
+    assert.equal(s.props[1], undefined);
+    assert.equal(s.players[1].cash, 1500);
+  });
+
+  test('the game ends when only one active seat remains', () => {
+    let s = mut(setup(), (s) => { s.players[1].bankrupt = true; s.players[2].left = true; });
+    s = leave(s, 3);
+    assert.equal(s.turn.phase, 'over');
+    assert.equal(s.winner, 0);
+  });
+
+  test('LEAVE is host-only and rejects bad or inactive seats', () => {
+    assert.ok(!legalActions(setup()).some((a) => a.type === 'LEAVE'));
+    assert.throws(() => leave(setup(), 7), /illegal/i);
+    assert.throws(() => leave(setup(), '1'), /illegal/i);
+    assert.throws(() => leave(leave(setup(), 1), 1), /illegal/i);
+    assert.throws(() => leave(mut(setup(), (s) => { s.players[1].bankrupt = true; }), 1), /illegal/i);
+    assert.throws(() => leave(mut(setup(), (s) => { s.turn.phase = 'over'; }), 1), /illegal/i);
+  });
+});
+
 // ---------- net worth ----------
 
 describe('netWorth', () => {

@@ -132,9 +132,18 @@ function canBuild(state, sq) {
 
 // ---------- legal actions ----------
 
+// TIME_UP and LEAVE are host-only: the clock and the network layer emit them, players
+// never see them in legalActions().
 function isLegal(state, action) {
   if (action.type === 'TIME_UP') return !isOver(state);
+  if (action.type === 'LEAVE') return canLeave(state, action);
   return legalActions(state).some((a) => a.type === action.type && a.square === action.square);
+}
+
+function canLeave(state, { player: seat }) {
+  if (!Number.isInteger(seat) || isOver(state)) return false;
+  const p = state.players[seat];
+  return Boolean(p) && isActive(p);
 }
 
 function rollActions(state) {
@@ -189,6 +198,7 @@ const HANDLERS = {
   DECLARE_BANKRUPT: declareBankrupt,
   END_TURN: endTurn,
   TIME_UP: timeUp,
+  LEAVE: leave,
 };
 
 function rollAndMove(s) {
@@ -270,7 +280,7 @@ function unmortgage(s, { square }) {
 
 function declareBankrupt(s) {
   const me = s.turn.player;
-  const to = s.turn.debt.to;
+  const to = creditor(s, s.turn.debt.to);
   sellAllHouses(s, me);
   transferEstate(s, me, to);
   Object.assign(s.players[me], { bankrupt: true, cash: 0, pendingDebt: null });
@@ -290,6 +300,18 @@ function endTurn(s) {
 function timeUp(s) {
   s.finalRound = true;
   log(s, { t: 'timeUp' });
+}
+
+// A seat that left keeps its estate (which then collects no rent) and is skipped in the
+// turn order. Leaving on your own turn ends it; leaving as the second-to-last active
+// seat ends the game.
+function leave(s, { player: seat }) {
+  Object.assign(s.players[seat], { left: true, pendingDebt: null });
+  log(s, { t: 'left', p: seat });
+  if (seat !== s.turn.player && activeSeats(s).length > 1) return;
+  s.turn.offer = null;
+  s.turn.debt = null;
+  advanceTurn(s);
 }
 
 // ---------- movement ----------
@@ -377,8 +399,7 @@ function resolveProperty(s, sq) {
   if (prop.owner === s.turn.player) return;
   const amount = rentFor(s, sq.index, diceTotal(s));
   if (amount === 0) return;
-  const creditor = s.players[prop.owner].left ? null : prop.owner;
-  charge(s, amount, creditor);
+  charge(s, amount, creditor(s, prop.owner));
   log(s, { t: 'rent', p: s.turn.player, to: prop.owner, square: sq.index, amount });
 }
 
@@ -445,6 +466,11 @@ function birthday(s, { amount }) {
 }
 
 // ---------- money and debt ----------
+
+// A creditor who left the game is paid like the bank: nobody.
+function creditor(s, to) {
+  return to !== null && s.players[to].left ? null : to;
+}
 
 function charge(s, amount, to) {
   const payer = player(s);

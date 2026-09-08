@@ -82,11 +82,12 @@ them.
 Peer-to-peer over WebRTC, no server, no accounts — the same manual signalling as
 [Tschau Sepp](https://github.com/freaxnx01/game-tschau-sepp):
 
-1. The host opens **Online → Hoste** and creates one **offer code** per guest.
-2. Each guest opens **Online → Bitritt**, pastes the offer code and gets an **answer code**
+1. The host opens **Online → Spiel erstelle** and creates one **offer code** per guest.
+2. Each guest opens **Online → Spiel biitrette**, pastes the offer code and gets an **answer code**
    back.
 3. The guest sends the answer code to the host (chat, mail, whatever), the host pastes it,
-   and the seat connects. Repeat for every guest, up to 4 players in total.
+   and the seat connects. Repeat for every guest, up to 4 players in total; the host can
+   fill the remaining seats with CPUs before starting. Codes expire after 10 minutes.
 
 The host is authoritative: guests send actions, the host validates them against the rules,
 applies them and broadcasts the new state. A guest who disconnects leaves an empty seat
