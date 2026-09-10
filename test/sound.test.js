@@ -31,6 +31,11 @@ describe('cuesFor', () => {
     assert.equal(cuesFor(0, state({ t: 'move' })).seq, 1);
   });
 
+  test('the entry that ends the game still yields its fanfare', () => {
+    const s = state({ t: 'rent' }, { t: 'bankrupt' }, { t: 'over', winner: 0 });
+    assert.deepEqual(cuesFor(0, s), { cues: ['pay', 'bust', 'fanfare'], seq: 3 });
+  });
+
   test('highestSeq seeds from an in-progress game', () => {
     assert.equal(highestSeq(state({ t: 'roll' }, { t: 'buy' })), 2);
   });
