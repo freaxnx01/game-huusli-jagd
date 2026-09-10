@@ -10,6 +10,9 @@ All notable changes to this project are documented here, following
 
 - Desktop board scaling to fill the browser window in both flat and isometric views,
   eliminating the previous 540px size constraint
+- Sound effects for dice rolls and other money/property events, synthesized with Web
+  Audio (no assets, no build step), muteable via a top-bar toggle persisted in
+  `localStorage`
 - 24-square board template with four city editions: Zürich, Basel, Frick, Sursee
 - Pure game engine (`newGame` / `legalActions` / `reduce`) with seeded RNG, majority-build
   rule (2 of 3 streets of a district), mortgage, jail, 11 Ereignis cards, Gäldnot and
