@@ -13,6 +13,8 @@ All notable changes to this project are documented here, following
 - Sound effects for dice rolls and other money/property events, synthesized with Web
   Audio (no assets, no build step), muteable via a top-bar toggle persisted in
   `localStorage`
+- Funny Swiss names pre-filled in the menu's name fields, so a game can be started
+  without typing anything; the saved name always wins for a returning player
 - 24-square board template with four city editions: Zürich, Basel, Frick, Sursee
 - Pure game engine (`newGame` / `legalActions` / `reduce`) with seeded RNG, majority-build
   rule (2 of 3 streets of a district), mortgage, jail, 11 Ereignis cards, Gäldnot and
