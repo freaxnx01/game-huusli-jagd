@@ -48,6 +48,13 @@ function showMenu(notice = '') {
 
 // ---------- solo / hotseat ----------
 
+// Leaving a running local game asks first; from the end screen it just leaves.
+async function leaveLocal(loop) {
+  const running = loop?.state && !isOver(loop.state);
+  if (running && !(await confirmDialog(t('game.leaveConfirmLocal')))) return;
+  showMenu();
+}
+
 function startGame({ edition, mode, players }) {
   let loop = null;
   const game = {
@@ -60,6 +67,7 @@ function startGame({ edition, mode, players }) {
       if (action.type === 'NEW_GAME') return showMenu();
       loop.dispatch(action);
     },
+    onLeave: () => leaveLocal(loop),
   };
   show(game);
   const state = newGame({ edition, players, seed: Date.now() >>> 0, startedAt: Date.now(), ...gameOptions() });

@@ -68,6 +68,7 @@ const gsw = {
   'game.leave': 'Verlah',
   'game.leaveConfirm': 'Wotsch s Spiel würkli verlah? Für di isch es dänn fertig.',
   'game.leaveConfirmHost': 'Wotsch s Spiel würkli beände? Es isch dänn für alli fertig.',
+  'game.leaveConfirmLocal': 'Wotsch s Spiel würkli verlah? De Spielstand isch dänn wäg.',
   'confirm.yes': 'Ja',
   'confirm.no': 'Nei',
 
@@ -254,6 +255,7 @@ const en = {
   'game.leave': 'Leave',
   'game.leaveConfirm': 'Really leave the game? It will be over for you.',
   'game.leaveConfirmHost': 'Really end the game? It will be over for everyone.',
+  'game.leaveConfirmLocal': 'Really leave? The game will be lost.',
   'confirm.yes': 'Yes',
   'confirm.no': 'No',
 
