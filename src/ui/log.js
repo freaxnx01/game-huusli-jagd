@@ -43,7 +43,7 @@ export function logText(entry, state, board) {
     case 'bankrupt':
       return t('log.bankrupt', { ...p, to: toName(entry.to) });
     case 'round':
-      return t('log.round', { n: entry.n });
+      return t('log.round', { n: entry.round });
     case 'timeUp':
       return t('log.timeUp');
     case 'over':

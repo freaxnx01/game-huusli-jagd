@@ -33,7 +33,7 @@ export function newGame({ edition, players, seed = Date.now() >>> 0, maxRounds =
   const deck = shuffle(CARD_IDS, start.seed);
   const state = {
     edition, seed: deck.seed, round: 1, maxRounds, timeLimitMs, startedAt, startPlayer: start.value, finalRound: false,
-    players: players.map(newPlayer), turn: newTurn(start.value), props: {}, deck: deck.array, log: [], winner: null,
+    players: players.map(newPlayer), turn: newTurn(start.value), props: {}, deck: deck.array, log: [], logSeq: 0, winner: null,
   };
   log(state, { t: 'turn', p: start.value });
   return state;
@@ -85,7 +85,8 @@ function newTurn(player) {
 }
 
 function log(s, entry) {
-  s.log.push(entry);
+  s.logSeq += 1;
+  s.log.push({ ...entry, n: s.logSeq });
   if (s.log.length > LOG_LIMIT) s.log.shift();
 }
 
@@ -556,7 +557,7 @@ function nextSeat(s) {
 
 function endRound(s) {
   s.round += 1;
-  log(s, { t: 'round', n: s.round });
+  log(s, { t: 'round', round: s.round });
   return s.round > s.maxRounds || s.finalRound;
 }
 
