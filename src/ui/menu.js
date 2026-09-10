@@ -7,6 +7,7 @@ import { t } from '../i18n.js';
 import { VERSION } from '../../version.js';
 import { el, esc } from './dom.js';
 import { langSwitcher } from './lang.js';
+import { randomName, randomNames } from './names.js';
 
 const STORAGE_KEY = 'hj.menu';
 const MODES = ['solo', 'hotseat', 'online'];
@@ -25,7 +26,9 @@ function loadPrefs() {
 
 function savePrefs(prefs) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+    // suggested is a fresh offer each visit, never a remembered preference
+    const { suggested, ...keep } = prefs;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(keep));
   } catch {
     // no storage: nothing to remember
   }
@@ -50,7 +53,7 @@ function editionCards(current) {
 
 function nameInputs(prefs) {
   return Array.from({ length: MAX_SEATS }, (_, i) => {
-    const value = prefs.names?.[i] ?? '';
+    const value = prefs.names?.[i] || prefs.suggested.seats[i];
     return `<label class="name-row"${i >= prefs.seats ? ' hidden' : ''}><span>${i + 1}</span><input name="name${i}" maxlength="16" placeholder="${esc(t('menu.playerN', { n: i + 1 }))}" value="${esc(value)}"></label>`;
   }).join('');
 }
@@ -63,7 +66,7 @@ function onlineHtml(prefs, notice) {
   return `<div class="mode online" data-mode="online"${prefs.mode === 'online' ? '' : ' hidden'}>
     ${notice ? `<p class="notice" role="status">${esc(notice)}</p>` : ''}
     <p class="intro">${esc(t('menu.onlineIntro'))}</p>
-    <label class="field"><span>${esc(t('menu.yourName'))}</span><input name="onlineName" maxlength="${ONLINE_NAME_MAX}" value="${esc(prefs.name)}" placeholder="${esc(t('menu.playerN', { n: 1 }))}"></label>
+    <label class="field"><span>${esc(t('menu.yourName'))}</span><input name="onlineName" maxlength="${ONLINE_NAME_MAX}" value="${esc(prefs.name || prefs.suggested.you)}" placeholder="${esc(t('menu.playerN', { n: 1 }))}"></label>
     <div class="online-buttons">${onlineButton('host')}${onlineButton('join')}</div>
   </div>`;
 }
@@ -79,7 +82,7 @@ function html(prefs, notice) {
   <h2>${esc(t('menu.mode'))}</h2>
   <div class="tabs" role="tablist">${MODES.map((m) => `<button type="button" class="tab" role="tab" data-mode="${m}" aria-selected="${m === prefs.mode}">${esc(t(`menu.mode.${m}`))}</button>`).join('')}</div>
   <form class="mode" data-mode="solo"${prefs.mode === 'solo' ? '' : ' hidden'}>
-    <label class="field"><span>${esc(t('menu.yourName'))}</span><input name="name" maxlength="16" required value="${esc(prefs.name)}" placeholder="${esc(t('menu.playerN', { n: 1 }))}"></label>
+    <label class="field"><span>${esc(t('menu.yourName'))}</span><input name="name" maxlength="16" required value="${esc(prefs.name || prefs.suggested.you)}" placeholder="${esc(t('menu.playerN', { n: 1 }))}"></label>
     <fieldset><legend>${esc(t('menu.cpus'))}</legend>${radios('cpus', [1, 2, 3], prefs.cpus, String)}</fieldset>
     <fieldset><legend>${esc(t('menu.level'))}</legend>${radios('level', LEVELS, prefs.level, (v) => t(`menu.level.${v}`))}</fieldset>
     <button class="btn primary big" type="submit">${esc(t('menu.start'))}</button>
@@ -102,6 +105,9 @@ function cpuSeats(count, level, humanName) {
 // notice: optional one-line message (e.g. "the host ended the game") shown on the online tab.
 export function renderMenu(root, { onStart, onHost, onJoin, notice = '' }) {
   const prefs = { edition: 'zuerich', mode: 'solo', name: '', cpus: 3, level: 'gwieft', seats: 2, names: [], ...loadPrefs() };
+  // Nobody should have to type a name to start: offer funny ones, still editable. The
+  // saved name always wins, so a returning player keeps theirs.
+  prefs.suggested = { you: randomName(CPU_NAMES), seats: randomNames(MAX_SEATS, CPU_NAMES) };
   if (notice) prefs.mode = 'online';
   root.innerHTML = '';
   const menu = el('section', 'menu', html(prefs, notice));
