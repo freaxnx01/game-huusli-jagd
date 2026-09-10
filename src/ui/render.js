@@ -61,6 +61,7 @@ function mount(root, state, key, startedAt) {
   root.innerHTML = '';
   const game = el('div', 'game', skeleton(state));
   game.dataset.screen = 'game';
+  game.tabIndex = -1;
   root.appendChild(game);
   const inst = { key, el: game, startedAt, state, opts: null, update };
 
@@ -138,6 +139,10 @@ function mount(root, state, key, startedAt) {
     renderLog(logEl, current, board.squares);
     if (deed.current() != null) deed.show(deed.current(), current, board.squares);
   }
+
+  // Give the screen focus so Escape works immediately on a fresh mount, without
+  // requiring the player to first tab/click into a square or button.
+  game.focus({ preventScroll: true });
 
   return inst;
 }
