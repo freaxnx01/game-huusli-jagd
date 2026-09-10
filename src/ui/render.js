@@ -22,12 +22,16 @@ import { langSwitcher } from './lang.js';
 import { renderLog } from './log.js';
 import { renderClock, renderPanel, renderRound } from './panel.js';
 import { createScene } from './scene.js';
-import { createSound } from './sound.js';
+import { getSound } from './sound.js';
 
 const instances = new WeakMap();
 
 export function render(root, state, opts) {
   if (state.turn.phase === 'over') {
+    // update() never sees the final state — the engine logs "over" after setting the
+    // phase, so the fanfare (and whatever ended the game) is played here instead.
+    const done = instances.get(root);
+    if (done) getSound().playCues(cuesFor(done.seq, state).cues);
     instances.delete(root);
     renderEnd(root, state, opts);
     return;
@@ -65,15 +69,15 @@ function mount(root, state, key, startedAt) {
   game.dataset.screen = 'game';
   game.tabIndex = -1;
   root.appendChild(game);
-  const inst = { key, el: game, startedAt, state, opts: null, update };
+  const inst = { key, el: game, startedAt, state, opts: null, seq: highestSeq(state), update };
 
   const scene = createScene(game.querySelector('.stage'));
   const deed = createDeed(game.querySelector('.deed-host'), { onClose: () => { pinned = null; } });
   let pinned = null;
 
-  const sound = createSound();
-  inst.sound = sound;
-  let seq = highestSeq(state);
+  // one sound layer for the whole page; only the cue cursor (inst.seq) is per screen
+  const sound = getSound();
+  sound.cancel();
 
   const board = createBoard({
     boardEl: scene.boardEl,
@@ -116,7 +120,7 @@ function mount(root, state, key, startedAt) {
     soundToggle.title = t(sound.muted() ? 'game.soundOff' : 'game.soundOn');
   };
   soundToggle.addEventListener('click', () => sound.toggle());
-  sound.onChange(labelSound);
+  const offSound = sound.onChange(labelSound);
   labelSound();
   const leave = game.querySelector('.leave');
   leave.addEventListener('click', () => inst.opts.onLeave?.());
@@ -144,7 +148,12 @@ function mount(root, state, key, startedAt) {
   const sideEl = game.querySelector('.side');
   const logEl = game.querySelector('.log');
   const tick = setInterval(() => {
-    if (!game.isConnected) return clearInterval(tick);
+    if (!game.isConnected) {
+      // screen gone: drop the shared layer's queued cues and stop labelling a dead button
+      sound.cancel();
+      offSound();
+      return clearInterval(tick);
+    }
     renderClock(clockEl, inst.state, inst.startedAt);
   }, 1000);
 
@@ -152,9 +161,9 @@ function mount(root, state, key, startedAt) {
     const { state: current, opts } = inst;
     leave.hidden = !opts.onLeave;
     board.update(current);
-    const { cues, seq: next } = cuesFor(seq, current);
-    seq = next;
-    cues.forEach((cue, i) => (i ? setTimeout(() => sound.play(cue), i * 120) : sound.play(cue)));
+    const { cues, seq: next } = cuesFor(inst.seq, current);
+    inst.seq = next;
+    sound.playCues(cues);
     renderRound(roundEl, current);
     renderClock(clockEl, current, inst.startedAt);
     renderPanel(sideEl, current, board.squares, { you: opts.you, netWorth: opts.netWorth });

@@ -2,6 +2,8 @@
 // created lazily on the first user gesture (browsers block audio before that) and every
 // call is guarded so a missing/blocked context degrades to silence, never a thrown error.
 // Mute is persisted in localStorage, following the try/catch shape of scene.js's "hj.view".
+// There is exactly one layer per page (getSound): mute is page-global anyway, and browsers
+// cap a page at a handful of AudioContexts — one per game screen would run out.
 
 const STORAGE_KEY = 'hj.sound';
 
@@ -70,12 +72,16 @@ function voice(ctx, spec) {
   osc.stop(ctx.currentTime + spec.dur);
 }
 
-export function createSound() {
+function createSound() {
   let muted = storedMuted() ?? false;
   let ctx = null;
   const listeners = new Set();
+  const pending = new Set();
 
   function unlock() {
+    // both listeners go, not just the one that fired — the gesture we waited for is past
+    window.removeEventListener('pointerdown', unlock);
+    window.removeEventListener('keydown', unlock);
     if (ctx) return;
     try {
       const Ctx = window.AudioContext || window.webkitAudioContext;
@@ -86,8 +92,8 @@ export function createSound() {
       ctx = null;
     }
   }
-  window.addEventListener('pointerdown', unlock, { once: true });
-  window.addEventListener('keydown', unlock, { once: true });
+  window.addEventListener('pointerdown', unlock);
+  window.addEventListener('keydown', unlock);
 
   return {
     play(cue) {
@@ -100,6 +106,22 @@ export function createSound() {
         // synthesis failed: stay silent rather than break rendering
       }
     },
+    // A burst plays spaced ~120 ms apart; the handles are kept so cancel() can drop cues
+    // whose screen went away before they were due.
+    playCues(cues) {
+      cues.forEach((cue, i) => {
+        if (!i) return this.play(cue);
+        const id = setTimeout(() => {
+          pending.delete(id);
+          this.play(cue);
+        }, i * 120);
+        pending.add(id);
+      });
+    },
+    cancel() {
+      pending.forEach(clearTimeout);
+      pending.clear();
+    },
     muted() {
       return muted;
     },
@@ -111,8 +133,17 @@ export function createSound() {
     toggle() {
       this.setMuted(!muted);
     },
+    // returns an unsubscribe: the layer outlives the screens that label themselves from it
     onChange(fn) {
       listeners.add(fn);
+      return () => listeners.delete(fn);
     },
   };
+}
+
+let instance = null;
+
+export function getSound() {
+  if (!instance) instance = createSound();
+  return instance;
 }
