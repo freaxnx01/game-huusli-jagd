@@ -15,12 +15,14 @@ import { lang, t } from '../i18n.js';
 import { VERSION } from '../../version.js';
 import { createActions } from './actions.js';
 import { createBoard } from './board.js';
+import { cuesFor, highestSeq } from './cues.js';
 import { createDeed, openChooser, renderEnd } from './dialogs.js';
 import { el, esc } from './dom.js';
 import { langSwitcher } from './lang.js';
 import { renderLog } from './log.js';
 import { renderClock, renderPanel, renderRound } from './panel.js';
 import { createScene } from './scene.js';
+import { createSound } from './sound.js';
 
 const instances = new WeakMap();
 
@@ -68,6 +70,10 @@ function mount(root, state, key, startedAt) {
   const scene = createScene(game.querySelector('.stage'));
   const deed = createDeed(game.querySelector('.deed-host'), { onClose: () => { pinned = null; } });
   let pinned = null;
+
+  const sound = createSound();
+  inst.sound = sound;
+  let seq = highestSeq(state);
 
   const board = createBoard({
     boardEl: scene.boardEl,
@@ -137,6 +143,9 @@ function mount(root, state, key, startedAt) {
     const { state: current, opts } = inst;
     leave.hidden = !opts.onLeave;
     board.update(current);
+    const { cues, seq: next } = cuesFor(seq, current);
+    seq = next;
+    cues.forEach((cue, i) => (i ? setTimeout(() => sound.play(cue), i * 120) : sound.play(cue)));
     renderRound(roundEl, current);
     renderClock(clockEl, current, inst.startedAt);
     renderPanel(sideEl, current, board.squares, { you: opts.you, netWorth: opts.netWorth });
