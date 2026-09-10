@@ -257,7 +257,18 @@ legend { font-family: var(--font-head); font-weight: 600; font-size: 15px; text-
    height ≤ 100svh - --chrome  ⇒  --b ≤ (100svh - --chrome - --view-pad) / mult
    --view-scale is that 1 / mult. The flat --view-pad uses --case-w's 30px clamp
    ceiling as a constant upper bound: below --b ≈ 546px the real pad is smaller,
-   so the board is a little conservative there — never too tall. */
+   so the board is a little conservative there — never too tall.
+
+   Three terms, and the order matters. Before this branch the board was
+   min(540px, width term); the budget may only ever grow it past that old 540px
+   cap, never shrink it below what it used to be — a short desktop window
+   (1280×800: budget 284px) would otherwise hand back a board less than half the
+   old size. So the budget is floored at min(540px, width term) and the whole
+   thing stays under the width term:
+     --b-max = min(width term, max(540px, height budget))
+   The accepted trade: on a short window the budget loses and the page scrolls
+   about as much as it did before this branch — the old behaviour, preserved.
+   The max(320px, …) floor on --b still sits underneath, for narrow viewports. */
 @media (min-width: 900px) {
   .game-main {
     grid-template-columns: minmax(0, 1fr) 320px;
@@ -265,7 +276,7 @@ legend { font-family: var(--font-head); font-weight: 600; font-size: 15px; text-
     align-items: start;
   }
   .stage {
-    --b-max: min(calc(100cqw * var(--view-w)), calc((100svh - var(--chrome) - var(--view-pad)) * var(--view-scale)));
+    --b-max: min(calc(100cqw * var(--view-w)), max(540px, calc((100svh - var(--chrome) - var(--view-pad)) * var(--view-scale))));
   }
 }
 .scene {
