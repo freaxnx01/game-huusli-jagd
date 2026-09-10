@@ -107,15 +107,20 @@ function mount(root, state, key, startedAt) {
   leave.addEventListener('click', () => inst.opts.onLeave?.());
   game.querySelector('.tools').appendChild(langSwitcher());
   // The pinned deed is the nearer "close me" target, so Escape only reaches the leave
-  // path when nothing is open. The chooser and confirm dialogs are <dialog>s on
+  // path when nothing is pinned. A merely-hovered deed doesn't count as "open" here —
+  // it's not something the player deliberately opened, so it shouldn't cost them an
+  // Escape press. We still hide it before leaving: the confirm dialog is modal and the
+  // pointer may still rest over the board while it's up, so the stray card shouldn't
+  // linger underneath it. The chooser and confirm dialogs are <dialog>s on
   // document.body (ui/dialogs.js), so their own Escape never bubbles here.
   game.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    if (pinned != null || deed.current() != null) {
+    if (pinned != null) {
       pinned = null;
       deed.hide();
       return;
     }
+    deed.hide();
     inst.opts.onLeave?.();
   });
 
