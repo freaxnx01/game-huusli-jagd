@@ -115,9 +115,8 @@ function mount(root, state, key, startedAt) {
   labelToggle();
   const soundToggle = game.querySelector('.sound-toggle');
   const labelSound = () => {
-    soundToggle.textContent = sound.muted() ? '🔇' : '🔊';
+    soundToggle.textContent = t(sound.muted() ? 'game.soundOn' : 'game.soundOff');
     soundToggle.setAttribute('aria-pressed', String(sound.muted()));
-    soundToggle.title = t(sound.muted() ? 'game.soundOff' : 'game.soundOn');
   };
   soundToggle.addEventListener('click', () => sound.toggle());
   const offSound = sound.onChange(labelSound);
