@@ -168,24 +168,7 @@ legend { font-family: var(--font-head); font-weight: 600; font-size: 15px; text-
 .online-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
 
 /* ---------- game layout ---------- */
-.game {
-  /* Derived, not measured (no browser available) — needs confirming in DevTools.
-     Worst realistic case: debt phase (src/ui/actions.js:8 ORDER — SELL_HOUSE,
-     MORTGAGE, UNMORTGAGE, DECLARE_BANKRUPT, one button per type, single row).
-     .game padding-top 10 + padding-bottom 24                              = 34
-     .topbar content ~32 (26px logo line-box) + padding-bottom 8 + border 2 = 42
-     .topbar margin-bottom                                                 = 14
-     .game-main row-gap × 2 (stage→actions, actions→log)                   = 28
-     .actions (.turn-status "who" 20px + "detail" line, padding 12×2)      = 72
-     .log-wrap (.log max-height 190 + padding 8×2 + border 1×2)            = 208
-     .foot (margin-top 18 + version line ~14)                              = 32
-     sum = 430, rounded up for line-height/font-metric slack                = 440
-  */
-  --chrome: 440px;
-  max-width: 1900px;
-  margin: 0 auto;
-  padding: 10px 16px 24px;
-}
+.game { max-width: 1280px; margin: 0 auto; padding: 10px 16px 24px; }
 .topbar {
   display: flex;
   align-items: center;
@@ -212,34 +195,21 @@ legend { font-family: var(--font-head); font-weight: 600; font-size: 15px; text-
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas: "stage" "actions" "side" "log";
 }
-.stage-wrap {
-  grid-area: stage;
-  position: relative;
-  container-type: inline-size;
-  /* At very wide windows the stage is height-bound (see --b-max below), so the
-     column would otherwise stretch into a letterboxed strip around a small
-     board. Cap and centre it — see spec "Task 3 — wide-window case". */
-  max-width: calc(100svh * 1.6);
-  margin-inline: auto;
+@media (min-width: 900px) {
+  .game-main {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-areas: "stage side" "actions side" "log side";
+    align-items: start;
+  }
 }
+.stage-wrap { grid-area: stage; position: relative; container-type: inline-size; }
 .side { grid-area: side; }
 .actions { grid-area: actions; }
 .log-wrap { grid-area: log; }
 
 /* ---------- stage + scene ---------- */
 .stage {
-  /* Board ceiling. By default the board is width-bound only, exactly as it was
-     before this branch: --view-w is the share of the container width each view's
-     footprint may use. The height budget is a two-column-layout rule and lives
-     in the 900px block below — under it the layout stacks stage, actions, side
-     panel and log, the page scrolls regardless, and clamping to the leftover
-     height would only shrink the board. --view-scale / --view-pad are unused
-     here but defined per view for that block. */
-  --view-w: 0.86;                                    /* flat: board ≈ 0.86 × container width */
-  --view-scale: 1;                                   /* flat: 1 / 1 */
-  --view-pad: 76px;                                  /* flat: 2 × 30px case + 16px */
-  --b-max: calc(100cqw * var(--view-w));
-  --b: max(320px, var(--b-max));
+  --b: min(540px, calc(100cqw * 0.86));
   --case-w: clamp(14px, calc(var(--b) * 0.055), 30px);
   --case-h: clamp(12px, calc(var(--b) * 0.045), 24px);
   position: relative;
@@ -250,47 +220,8 @@ legend { font-family: var(--font-head); font-weight: 600; font-size: 15px; text-
   perspective: 1500px;
   perspective-origin: 50% 32%;
 }
-.stage.iso {
-  --view-w: 0.633;                                   /* = 1 / 1.58 — iso footprint is ~1.58 × --b wide */
-  --view-scale: 1.0527;                              /* = 1 / 0.95 — iso footprint is ~0.95 × --b tall */
-  --view-pad: 48px;
-  height: calc(var(--b) * 0.95 + 48px);
-}
+.stage.iso { --b: min(540px, calc(100cqw / 1.58)); height: calc(var(--b) * 0.95 + 48px); }
 .stage.flat { height: calc(var(--b) + 2 * var(--case-w) + 16px); }
-
-/* Two-column layout — the only place the window-height budget applies, because
-   --chrome (see .game) was derived for exactly this arrangement: board column
-   next to the side panel, with topbar, actions, log and foot above/below.
-   The rendered stage is *not* --b tall — each view adds a constant on top of a
-   multiple of --b (see the height rules above), so the constant has to come off
-   the budget before the multiplier is undone; a ratio alone cannot cancel it.
-     flat: height = --b * 1    + 2 * --case-w + 16px  → at most --b + 76px
-     iso:  height = --b * 0.95 + 48px
-   height ≤ 100svh - --chrome  ⇒  --b ≤ (100svh - --chrome - --view-pad) / mult
-   --view-scale is that 1 / mult. The flat --view-pad uses --case-w's 30px clamp
-   ceiling as a constant upper bound: below --b ≈ 546px the real pad is smaller,
-   so the board is a little conservative there — never too tall.
-
-   Three terms, and the order matters. Before this branch the board was
-   min(540px, width term); the budget may only ever grow it past that old 540px
-   cap, never shrink it below what it used to be — a short desktop window
-   (1280×800: budget 284px) would otherwise hand back a board less than half the
-   old size. So the budget is floored at min(540px, width term) and the whole
-   thing stays under the width term:
-     --b-max = min(width term, max(540px, height budget))
-   The accepted trade: on a short window the budget loses and the page scrolls
-   about as much as it did before this branch — the old behaviour, preserved.
-   The max(320px, …) floor on --b still sits underneath, for narrow viewports. */
-@media (min-width: 900px) {
-  .game-main {
-    grid-template-columns: minmax(0, 1fr) 320px;
-    grid-template-areas: "stage side" "actions side" "log side";
-    align-items: start;
-  }
-  .stage {
-    --b-max: min(calc(100cqw * var(--view-w)), max(540px, calc((100svh - var(--chrome) - var(--view-pad)) * var(--view-scale))));
-  }
-}
 .scene {
   position: absolute;
   left: 50%;
