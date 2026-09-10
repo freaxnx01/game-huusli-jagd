@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 
 import { cuesFor, highestSeq, MAX_CUES_PER_CHANGE } from '../src/ui/cues.js';
 
-const state = (...entries) => ({ log: entries.map((e, i) => ({ ...e, n: i + 1 })) });
+const state = (...entries) => ({ log: entries.map((e, i) => ({ ...e, seq: i + 1 })) });
 
 describe('cuesFor', () => {
   test('returns cues only for entries newer than prevSeq', () => {
