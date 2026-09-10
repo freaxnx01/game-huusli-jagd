@@ -8,6 +8,8 @@ All notable changes to this project are documented here, following
 
 ### Added
 
+- Desktop board scaling to fill the browser window in both flat and isometric views,
+  eliminating the previous 540px size constraint
 - 24-square board template with four city editions: Zürich, Basel, Frick, Sursee
 - Pure game engine (`newGame` / `legalActions` / `reduce`) with seeded RNG, majority-build
   rule (2 of 3 streets of a district), mortgage, jail, 11 Ereignis cards, Gäldnot and
