@@ -69,7 +69,7 @@ const types = (actions) => actions.map((a) => a.type);
 const last = (state, t) => {
   const found = [...state.log].reverse().find((e) => e.t === t);
   if (!found) return found;
-  const { n, ...entry } = found;
+  const { seq, ...entry } = found;
   return entry;
 };
 const inActions = (state) => mut(state, (s) => { s.turn.phase = 'actions'; s.turn.dice = [1, 2]; });
@@ -792,7 +792,7 @@ describe('turn order and rounds', () => {
     s = endTurn(s);
     assert.equal(s.turn.player, 0);
     assert.equal(s.round, 2);
-    assert.deepEqual(last(s, 'round'), { t: 'round', round: 2 });
+    assert.deepEqual(last(s, 'round'), { t: 'round', n: 2 });
   });
 
   test('a bankrupt start player still marks the round boundary', () => {
@@ -844,9 +844,9 @@ describe('turn order and rounds', () => {
 
   test('log entries carry a monotonic sequence number that survives the 40-entry cap', () => {
     let s = setup();
-    assert.equal(s.log.at(-1).n, 1);
+    assert.equal(s.log.at(-1).seq, 1);
     for (let i = 0; i < 60; i++) s = endTurn(s);
-    const ns = s.log.map((e) => e.n);
+    const ns = s.log.map((e) => e.seq);
     assert.equal(s.log.length, 40);
     assert.deepEqual(ns, [...ns].sort((a, b) => a - b));
     assert.ok(ns[0] > 1, 'oldest entries were dropped, numbering did not restart');

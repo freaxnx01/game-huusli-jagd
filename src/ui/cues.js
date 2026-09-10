@@ -1,5 +1,5 @@
 // Pure mapping from a state's log to the sound cues a state change should play. No Web
-// Audio, no DOM — cuesFor() diffs state.log by the engine's monotonic n (game.js) so it
+// Audio, no DOM — cuesFor() diffs state.log by the engine's monotonic seq (game.js) so it
 // works the same for solo, hotseat, host and guest renders. See sound.js for playback.
 
 export const MAX_CUES_PER_CHANGE = 3;
@@ -30,8 +30,8 @@ function cueFor(entry) {
 }
 
 export function cuesFor(prevSeq, state) {
-  const entries = state.log.filter((e) => e.n > prevSeq);
-  const seq = entries.length ? entries[entries.length - 1].n : prevSeq;
+  const entries = state.log.filter((e) => e.seq > prevSeq);
+  const seq = entries.length ? entries[entries.length - 1].seq : prevSeq;
   const withCues = entries.map((e, i) => ({ cue: cueFor(e), i })).filter((x) => x.cue);
   const selected = withCues
     .slice()
@@ -42,5 +42,5 @@ export function cuesFor(prevSeq, state) {
 }
 
 export function highestSeq(state) {
-  return state.log.length ? state.log[state.log.length - 1].n : 0;
+  return state.log.length ? state.log[state.log.length - 1].seq : 0;
 }

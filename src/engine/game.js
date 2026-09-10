@@ -86,7 +86,7 @@ function newTurn(player) {
 
 function log(s, entry) {
   s.logSeq += 1;
-  s.log.push({ ...entry, n: s.logSeq });
+  s.log.push({ ...entry, seq: s.logSeq });
   if (s.log.length > LOG_LIMIT) s.log.shift();
 }
 
@@ -557,7 +557,7 @@ function nextSeat(s) {
 
 function endRound(s) {
   s.round += 1;
-  log(s, { t: 'round', round: s.round });
+  log(s, { t: 'round', n: s.round });
   return s.round > s.maxRounds || s.finalRound;
 }
 
