@@ -21,3 +21,5 @@ All notable changes to this project are documented here, following
 - Online 2–4 player P2P over manual WebRTC offer/answer codes, host-authoritative
 - Isometric "travel case" board with a flat view toggle; Schwiizerdütsch UI
 - Simulation harness (`scripts/sim/harness.mjs`) and engine tests (`node --test test/`)
+- In-game way to leave a running solo or hotseat game back to the main menu, via the
+  "Verlah" button or `Escape`, with a confirmation before the game state is lost
