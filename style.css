@@ -156,7 +156,24 @@ legend { font-family: var(--font-head); font-weight: 600; font-size: 15px; text-
 .online-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
 
 /* ---------- game layout ---------- */
-.game { max-width: 1280px; margin: 0 auto; padding: 10px 16px 24px; }
+.game {
+  /* Derived, not measured (no browser available) — needs confirming in DevTools.
+     Worst realistic case: debt phase (src/ui/actions.js:8 ORDER — SELL_HOUSE,
+     MORTGAGE, UNMORTGAGE, DECLARE_BANKRUPT, one button per type, single row).
+     .game padding-top 10 + padding-bottom 24                              = 34
+     .topbar content ~32 (26px logo line-box) + padding-bottom 8 + border 2 = 42
+     .topbar margin-bottom                                                 = 14
+     .game-main row-gap × 2 (stage→actions, actions→log)                   = 28
+     .actions (.turn-status "who" 20px + "detail" line, padding 12×2)      = 72
+     .log-wrap (.log max-height 190 + padding 8×2 + border 1×2)            = 208
+     .foot (margin-top 18 + version line ~14)                              = 32
+     sum = 430, rounded up for line-height/font-metric slack                = 440
+  */
+  --chrome: 440px;
+  max-width: 1900px;
+  margin: 0 auto;
+  padding: 10px 16px 24px;
+}
 .topbar {
   display: flex;
   align-items: center;
@@ -190,14 +207,25 @@ legend { font-family: var(--font-head); font-weight: 600; font-size: 15px; text-
     align-items: start;
   }
 }
-.stage-wrap { grid-area: stage; position: relative; container-type: inline-size; }
+.stage-wrap {
+  grid-area: stage;
+  position: relative;
+  container-type: inline-size;
+  /* At very wide windows the stage is height-bound (see --b-max below), so the
+     column would otherwise stretch into a letterboxed strip around a small
+     board. Cap and centre it — see spec "Task 3 — wide-window case". */
+  max-width: calc(100svh * 1.6);
+  margin-inline: auto;
+}
 .side { grid-area: side; }
 .actions { grid-area: actions; }
 .log-wrap { grid-area: log; }
 
 /* ---------- stage + scene ---------- */
 .stage {
-  --b: min(540px, calc(100cqw * 0.86));
+  --view-ratio: 1;                                   /* flat: height budget ≈ board size */
+  --b-max: min(calc(100cqw * 0.86), calc((100svh - var(--chrome)) * var(--view-ratio)));
+  --b: max(320px, var(--b-max));
   --case-w: clamp(14px, calc(var(--b) * 0.055), 30px);
   --case-h: clamp(12px, calc(var(--b) * 0.045), 24px);
   position: relative;
@@ -208,7 +236,11 @@ legend { font-family: var(--font-head); font-weight: 600; font-size: 15px; text-
   perspective: 1500px;
   perspective-origin: 50% 32%;
 }
-.stage.iso { --b: min(540px, calc(100cqw / 1.58)); height: calc(var(--b) * 0.95 + 48px); }
+.stage.iso {
+  --view-ratio: 1.05;                                /* iso footprint is ~0.95 × --b tall */
+  --b-max: min(calc(100cqw / 1.58), calc((100svh - var(--chrome)) * var(--view-ratio)));
+  height: calc(var(--b) * 0.95 + 48px);
+}
 .stage.flat { height: calc(var(--b) + 2 * var(--case-w) + 16px); }
 .scene {
   position: absolute;
