@@ -61,7 +61,7 @@ here or promote them to issues.
 
 ## Polish
 
-- [ ] Sounds via Web Audio (dice, cash register, jail), muteable
+- [x] Sounds via Web Audio (dice, cash register, jail), muteable — added 2026-09-10
 
 ## Release
 
