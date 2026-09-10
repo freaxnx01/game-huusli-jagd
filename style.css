@@ -200,13 +200,6 @@ legend { font-family: var(--font-head); font-weight: 600; font-size: 15px; text-
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas: "stage" "actions" "side" "log";
 }
-@media (min-width: 900px) {
-  .game-main {
-    grid-template-columns: minmax(0, 1fr) 320px;
-    grid-template-areas: "stage side" "actions side" "log side";
-    align-items: start;
-  }
-}
 .stage-wrap {
   grid-area: stage;
   position: relative;
@@ -223,21 +216,17 @@ legend { font-family: var(--font-head); font-weight: 600; font-size: 15px; text-
 
 /* ---------- stage + scene ---------- */
 .stage {
-  /* Board ceiling, solved per view. The rendered stage is *not* --b tall: each
-     view adds a constant on top of a multiple of --b (see the height rules
-     below), so the constant has to come off the budget before the multiplier
-     is undone — a ratio alone cannot cancel it.
-       flat: height = --b * 1    + 2 * --case-w + 16px  → at most --b + 76px
-       iso:  height = --b * 0.95 + 48px
-     height ≤ 100svh - --chrome  ⇒  --b ≤ (100svh - --chrome - --view-pad) / mult
-     --view-scale is that 1 / mult, --view-w the share of the container width the
-     board may use. The flat --view-pad uses --case-w's 30px clamp ceiling as a
-     constant upper bound: below --b ≈ 546px the real pad is smaller, so the
-     board is a little conservative there — never too tall. */
+  /* Board ceiling. By default the board is width-bound only, exactly as it was
+     before this branch: --view-w is the share of the container width each view's
+     footprint may use. The height budget is a two-column-layout rule and lives
+     in the 900px block below — under it the layout stacks stage, actions, side
+     panel and log, the page scrolls regardless, and clamping to the leftover
+     height would only shrink the board. --view-scale / --view-pad are unused
+     here but defined per view for that block. */
   --view-w: 0.86;                                    /* flat: board ≈ 0.86 × container width */
   --view-scale: 1;                                   /* flat: 1 / 1 */
   --view-pad: 76px;                                  /* flat: 2 × 30px case + 16px */
-  --b-max: min(calc(100cqw * var(--view-w)), calc((100svh - var(--chrome) - var(--view-pad)) * var(--view-scale)));
+  --b-max: calc(100cqw * var(--view-w));
   --b: max(320px, var(--b-max));
   --case-w: clamp(14px, calc(var(--b) * 0.055), 30px);
   --case-h: clamp(12px, calc(var(--b) * 0.045), 24px);
@@ -256,6 +245,29 @@ legend { font-family: var(--font-head); font-weight: 600; font-size: 15px; text-
   height: calc(var(--b) * 0.95 + 48px);
 }
 .stage.flat { height: calc(var(--b) + 2 * var(--case-w) + 16px); }
+
+/* Two-column layout — the only place the window-height budget applies, because
+   --chrome (see .game) was derived for exactly this arrangement: board column
+   next to the side panel, with topbar, actions, log and foot above/below.
+   The rendered stage is *not* --b tall — each view adds a constant on top of a
+   multiple of --b (see the height rules above), so the constant has to come off
+   the budget before the multiplier is undone; a ratio alone cannot cancel it.
+     flat: height = --b * 1    + 2 * --case-w + 16px  → at most --b + 76px
+     iso:  height = --b * 0.95 + 48px
+   height ≤ 100svh - --chrome  ⇒  --b ≤ (100svh - --chrome - --view-pad) / mult
+   --view-scale is that 1 / mult. The flat --view-pad uses --case-w's 30px clamp
+   ceiling as a constant upper bound: below --b ≈ 546px the real pad is smaller,
+   so the board is a little conservative there — never too tall. */
+@media (min-width: 900px) {
+  .game-main {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-areas: "stage side" "actions side" "log side";
+    align-items: start;
+  }
+  .stage {
+    --b-max: min(calc(100cqw * var(--view-w)), calc((100svh - var(--chrome) - var(--view-pad)) * var(--view-scale)));
+  }
+}
 .scene {
   position: absolute;
   left: 50%;
@@ -559,12 +571,6 @@ legend { font-family: var(--font-head); font-weight: 600; font-size: 15px; text-
   .brand .logo { font-size: 22px; }
   .status { gap: 8px; font-size: 13px; }
   .deed { width: 170px; }
-  /* One stacked column: board, actions, side panel and log cannot share a phone
-     viewport anyway, so the height budget would only shrink the board on a page
-     that scrolls regardless — and the real chrome here is well past --chrome's
-     desktop 440px. Let the width term bind alone, as it did before the board
-     was sized from window height. */
-  .stage { --b-max: calc(100cqw * var(--view-w)); }
   .menu-head h1 { font-size: 42px; }
   .menu-head .lang-slot { position: static; margin-bottom: 8px; }
 }
