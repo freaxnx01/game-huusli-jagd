@@ -223,8 +223,21 @@ legend { font-family: var(--font-head); font-weight: 600; font-size: 15px; text-
 
 /* ---------- stage + scene ---------- */
 .stage {
-  --view-ratio: 1;                                   /* flat: height budget ≈ board size */
-  --b-max: min(calc(100cqw * 0.86), calc((100svh - var(--chrome)) * var(--view-ratio)));
+  /* Board ceiling, solved per view. The rendered stage is *not* --b tall: each
+     view adds a constant on top of a multiple of --b (see the height rules
+     below), so the constant has to come off the budget before the multiplier
+     is undone — a ratio alone cannot cancel it.
+       flat: height = --b * 1    + 2 * --case-w + 16px  → at most --b + 76px
+       iso:  height = --b * 0.95 + 48px
+     height ≤ 100svh - --chrome  ⇒  --b ≤ (100svh - --chrome - --view-pad) / mult
+     --view-scale is that 1 / mult, --view-w the share of the container width the
+     board may use. The flat --view-pad uses --case-w's 30px clamp ceiling as a
+     constant upper bound: below --b ≈ 546px the real pad is smaller, so the
+     board is a little conservative there — never too tall. */
+  --view-w: 0.86;                                    /* flat: board ≈ 0.86 × container width */
+  --view-scale: 1;                                   /* flat: 1 / 1 */
+  --view-pad: 76px;                                  /* flat: 2 × 30px case + 16px */
+  --b-max: min(calc(100cqw * var(--view-w)), calc((100svh - var(--chrome) - var(--view-pad)) * var(--view-scale)));
   --b: max(320px, var(--b-max));
   --case-w: clamp(14px, calc(var(--b) * 0.055), 30px);
   --case-h: clamp(12px, calc(var(--b) * 0.045), 24px);
@@ -237,8 +250,9 @@ legend { font-family: var(--font-head); font-weight: 600; font-size: 15px; text-
   perspective-origin: 50% 32%;
 }
 .stage.iso {
-  --view-ratio: 1.05;                                /* iso footprint is ~0.95 × --b tall */
-  --b-max: min(calc(100cqw / 1.58), calc((100svh - var(--chrome)) * var(--view-ratio)));
+  --view-w: 0.633;                                   /* = 1 / 1.58 — iso footprint is ~1.58 × --b wide */
+  --view-scale: 1.0527;                              /* = 1 / 0.95 — iso footprint is ~0.95 × --b tall */
+  --view-pad: 48px;
   height: calc(var(--b) * 0.95 + 48px);
 }
 .stage.flat { height: calc(var(--b) + 2 * var(--case-w) + 16px); }
@@ -545,6 +559,12 @@ legend { font-family: var(--font-head); font-weight: 600; font-size: 15px; text-
   .brand .logo { font-size: 22px; }
   .status { gap: 8px; font-size: 13px; }
   .deed { width: 170px; }
+  /* One stacked column: board, actions, side panel and log cannot share a phone
+     viewport anyway, so the height budget would only shrink the board on a page
+     that scrolls regardless — and the real chrome here is well past --chrome's
+     desktop 440px. Let the width term bind alone, as it did before the board
+     was sized from window height. */
+  .stage { --b-max: calc(100cqw * var(--view-w)); }
   .menu-head h1 { font-size: 42px; }
   .menu-head .lang-slot { position: static; margin-bottom: 8px; }
 }
