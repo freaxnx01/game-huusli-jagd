@@ -105,10 +105,17 @@ function mount(root, state, key, startedAt) {
   const leave = game.querySelector('.leave');
   leave.addEventListener('click', () => inst.opts.onLeave?.());
   game.querySelector('.tools').appendChild(langSwitcher());
+  // The pinned deed is the nearer "close me" target, so Escape only reaches the leave
+  // path when nothing is open. The chooser and confirm dialogs are <dialog>s on
+  // document.body (ui/dialogs.js), so their own Escape never bubbles here.
   game.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    pinned = null;
-    deed.hide();
+    if (pinned != null || deed.current() != null) {
+      pinned = null;
+      deed.hide();
+      return;
+    }
+    inst.opts.onLeave?.();
   });
 
   const roundEl = game.querySelector('.round');
