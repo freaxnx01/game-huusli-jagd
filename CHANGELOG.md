@@ -6,6 +6,8 @@ All notable changes to this project are documented here, following
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-30
+
 ### Added
 
 - Desktop board scaling to fill the browser window in both flat and isometric views,
@@ -28,3 +30,4 @@ All notable changes to this project are documented here, following
 - Simulation harness (`scripts/sim/harness.mjs`) and engine tests (`node --test test/`)
 - In-game way to leave a running solo or hotseat game back to the main menu, via the
   "Verlah" button or `Escape`, with a confirmation before the game state is lost
+- Hub navigation (version badge, fullscreen toggle, More Games, Source, Feedback, GitHub star)
